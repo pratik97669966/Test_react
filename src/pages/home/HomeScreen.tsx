@@ -31,45 +31,15 @@ const HomeScreen: React.FC = () => {
   }
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    // if (!token) {
-    //   history.push(LOGIN);
-    // } else
-    localStorage.removeItem('selected-symptom');
-    localStorage.removeItem('complaint-note');
-    {
-      getSelfData()
-        .then((response) => {
-          localStorage.setItem('selfData', JSON.stringify(response.data));
-          getRecentUsedLocation(response.data.userId)
-            .then((responseAddress) => {
-              // if (!responseAddress.data) {
-              //   history.push('/choose-address');
-              // } else {
-              setAddress(responseAddress.data);
-              // }
-            })
-            .catch(error => {
-              console.error('Error :', error);
-            });
-        })
-        .catch(error => {
-          console.error('Error :', error);
-        });
-    }
+
   }, [history]);
 
   const onLogout = () => {
     setLogoutDiloageOpen(true);
   };
   const onLogoutConfirm = () => {
-    logoutUser(localStorage.getItem('token') + '')
-      .then(response => {
-        localStorage.clear();
-        history.push(LOGIN);
-      })
-      .catch(error => {
-      });
+    localStorage.clear();
+    history.push(LOGIN);
   };
 
   const ononChangeLocation = () => {
@@ -90,18 +60,18 @@ const HomeScreen: React.FC = () => {
   };
 
   const images = [
-    'https://atys-images.s3.ap-south-1.amazonaws.com/Services-img/Doctor-Home-visit-S1-.png',
-    'https://atys-images.s3.ap-south-1.amazonaws.com/Services-img/Lab-Test-s3-.png',
-    'https://atys-images.s3.ap-south-1.amazonaws.com/Services-img/Medicine-Delivery-s2-.png',
+    'https://scontent.fpnq13-4.fna.fbcdn.net/v/t39.30808-6/312178340_492705012877051_843077765688750511_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_ohc=4W4nc5rXmMAQ7kNvgEfJmMT&_nc_ht=scontent.fpnq13-4.fna&_nc_gid=AEivyAgP1xpPXzNvfvu5wut&oh=00_AYCYJCrdCxuShiv7XhNFj7cxsR5JA6_Re5ONAy16TVr6oQ&oe=66FA3CE0',
+    'https://scontent.fpnq13-4.fna.fbcdn.net/v/t39.30808-6/312178340_492705012877051_843077765688750511_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_ohc=4W4nc5rXmMAQ7kNvgEfJmMT&_nc_ht=scontent.fpnq13-4.fna&_nc_gid=AEivyAgP1xpPXzNvfvu5wut&oh=00_AYCYJCrdCxuShiv7XhNFj7cxsR5JA6_Re5ONAy16TVr6oQ&oe=66FA3CE0',
+    'https://scontent.fpnq13-4.fna.fbcdn.net/v/t39.30808-6/312178340_492705012877051_843077765688750511_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_ohc=4W4nc5rXmMAQ7kNvgEfJmMT&_nc_ht=scontent.fpnq13-4.fna&_nc_gid=AEivyAgP1xpPXzNvfvu5wut&oh=00_AYCYJCrdCxuShiv7XhNFj7cxsR5JA6_Re5ONAy16TVr6oQ&oe=66FA3CE0',
   ];
 
   const onCardClick = (index: number) => {
     if (index == 0) {
-      history.push('/choose-address');
+      history.push('/add-address');
     } else if (index == 1) {
-      history.push('/lab-test');
+      history.push('/add-address');
     } else {
-      history.push('/medicine-delivery');
+      history.push('/add-address');
     }
   };
 
@@ -110,8 +80,8 @@ const HomeScreen: React.FC = () => {
       <div className={classes.container}>
         <HomeSearchAppBar onChangeLocation={ononChangeLocation} onLogout={onLogout} address={address} />
         <div className={classes.scrollableContent}>
-          <div style={{ marginTop: '20px', marginRight: '10px', marginLeft: '10px' }}>
-            <img src='https://atys-images.s3.ap-south-1.amazonaws.com/promtional-banners/Doctor+at+Home.png' alt="Logo" className={classes.logo} />
+          <div >
+            <img src='https://scontent.fpnq13-4.fna.fbcdn.net/v/t39.30808-6/438078949_854269576720591_3557140590076617471_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=SYIIhtw0ZrwQ7kNvgHuj4fI&_nc_ht=scontent.fpnq13-4.fna&_nc_gid=AeUBpuhKMFuQyS1gazYvwwg&oh=00_AYCkTH6xUBE-aIa1AKhSXNkGzXE9aygMELO0jMt8NAvQcw&oe=66FA6AE7' alt="Logo" className={classes.logo} />
           </div>
           <Slider {...sliderSettings} className={classes.slider}>
             {images.map((image, index) => (

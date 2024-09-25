@@ -11,7 +11,7 @@ export default makeStyles((theme: Theme) =>
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      padding: theme.spacing(0, 2), // Add padding for better spacing
+      padding: '4px', // Add padding for better spacing
     },
     locationContainer: {
       display: 'flex',

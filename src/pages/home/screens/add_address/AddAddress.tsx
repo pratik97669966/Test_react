@@ -17,7 +17,7 @@ const AddAddress = () => {
     const classes = useStyles();
     const history = useHistory();
     const { successSnack, failSnack, warningSnack } = getDefaultSnack(useSnackbar().enqueueSnackbar);
-    const [pincode, setPincode] = useState('411001');
+    const [pincode, setPincode] = useState('422605');
     const [addressType, setAddressType] = useState('Home');
     const [localityOptions, setLocalityOptions] = useState<string[]>([]);
     const [selectedLocality, setSelectedLocality] = useState('');
@@ -27,9 +27,6 @@ const AddAddress = () => {
     const [state, setState] = useState('');
     const [city, setCity] = useState('');
     const [country, setCountry] = useState('');
-
-    const selfDataString = localStorage.getItem('selfData');
-    const selfData: SelfData | null = selfDataString ? JSON.parse(selfDataString) : null;
 
     useEffect(() => {
         if (pincode.length === 6) {
@@ -57,27 +54,53 @@ const AddAddress = () => {
             warningSnack("Please enter address");
             return;
         }
-        const payload = {
+        if (!city) {
+            warningSnack("Please enter city");
+            return;
+        }
+        if (!selectedLocality) {
+            warningSnack("Please select locality");
+            return;
+        }
+        if (!pincode) {
+            warningSnack("Please enter postal code");
+            return;
+        }
+        if (!state) {
+            warningSnack("Please enter state");
+            return;
+        }
+        if (!addressType) {
+            warningSnack("Please select address type");
+            return;
+        }
+
+        const addressDetails = {
             address: address,
-            city: 'Pune',
+            city: city,
             country: 'India',
             landmark: landmark,
-            locality: 'Koregaon Park',
-            parentPatientId: selfData?.userId,
-            postalCode: '411001',
-            state: 'Maharashtra',
+            locality: selectedLocality,
+            postalCode: pincode,
+            state: state,
             type: addressType,
         };
-        addAddress(payload)
-            .then((response) => {
-                history.goBack();
-            })
-            .catch((error) => {
-                if (error.response && error.response.status === 404) {
-                    failSnack('We are unable to provide service in this zone at the moment.');
-                }
-            });
+
+        // Save address details
+        localStorage.setItem('address', addressDetails.address);
+        localStorage.setItem('city', addressDetails.city);
+        localStorage.setItem('country', 'India');
+        localStorage.setItem('landmark', addressDetails.landmark);
+        localStorage.setItem('locality', addressDetails.locality);
+        localStorage.setItem('postalCode', addressDetails.postalCode);
+        localStorage.setItem('state', addressDetails.state);
+        localStorage.setItem('type', addressDetails.type);
+
+        // Optionally, show a success message
+        successSnack("Address details saved successfully");
+        history.push('/payment_screen');
     };
+
 
     const handleAddressTypeChange = (event: any, newType: React.SetStateAction<string>) => {
         setAddressType(newType);
@@ -97,11 +120,43 @@ const AddAddress = () => {
                         </IconButton>
                     </Grid>
                     <Grid item>
-                        <Typography variant="h6" className={classes.title}>Add New Address</Typography>
+                        <Typography variant="h6" className={classes.title}>Set Your Address</Typography>
                     </Grid>
                 </Grid>
-                <Typography variant="h6" className={classes.headerText}>Enter your address inside koregaon park</Typography>
+                <Grid container alignItems="center" style={{ flexWrap: 'nowrap' }}>
+                    <Grid item>
+                        <TextField
+                            label="Pin Code"
+                            variant="outlined"
+                            fullWidth
+                            onChange={(e) => setPincode(e.target.value)}
+                            className={classes.textField}
+                            value={pincode}
+                        />
+                    </Grid>
+                    <Grid item>
+                        <Typography className={classes.locationText}>{formattedAddress}</Typography>
+                    </Grid>
+                </Grid>
                 <form className={classes.form}>
+                    <FormControl fullWidth variant="outlined" className={classes.formControl}>
+                        <InputLabel id="locality-label">
+                            {localityOptions.length > 0 ? 'Select Locality' : 'Enter Pincode To Select Locality*'}
+                        </InputLabel>
+                        <Select
+                            labelId="locality-label"
+                            id="locality"
+                            value={selectedLocality}
+                            onChange={handleLocalityChange}
+                            label={localityOptions.length > 0 ? 'Select Locality' : 'Enter Pincode To Select Locality*'}
+                        >
+                            {localityOptions.map((locality, index) => (
+                                <MenuItem key={index} value={locality}>
+                                    {locality}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                     <TextField
                         label="Flat no.,Building,Company, Street*"
                         variant="outlined"

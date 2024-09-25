@@ -89,10 +89,22 @@ export default makeStyles((theme: Theme) =>
       width: '150px',
       marginBottom: theme.spacing(3),
     },
-    recaptchaContainer: {
-      display: 'flex',
-      justifyContent: 'center',
-      margin: '10px',
+    iconAddMember: {
+      color: '#5F6368',
+    },
+    field: {
+      marginBottom: '10px',
+      '& .MuiInputBase-root': {
+        height: '50px', // Set the height to 74px
+        fontSize: '14px', // Set the inside text size to 14px
+      },
+      '& .MuiInputAdornment-root': {
+        marginTop: '0px', // Ensure icon aligns correctly
+      },
+    },
+    label: {
+      fontSize: '16px',
+      color: '#78879E',
     },
   }),
 );
