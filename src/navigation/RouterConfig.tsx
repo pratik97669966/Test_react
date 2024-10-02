@@ -5,6 +5,7 @@ import { HOME, LOGIN, ROOT } from '../navigation/Constants';
 import Login from '../pages/doctor/SignIn';
 import Home from '../pages/home/HomeScreen';
 import AddAddress from '../pages/home/screens/add_address/AddAddress';
+import BillingPage from '../pages/home/screens/billing_page/BIllingPage';
 import BookingDetails from '../pages/home/screens/booking_deatils/BookingDetails';
 import BookingTimer from '../pages/home/screens/booking_timer/BookingTimer';
 import Lab from '../pages/home/screens/comming_soon/Lab';
@@ -41,6 +42,7 @@ export const RouterConfig = () => {
         <Route path="/lab-test" component={Lab} />
         <Route path="/medicine-delivery" component={Medicine} />
         <Route path="/payment_screen" component={PaymentScreen} />
+        <Route path="/billing-page" component={BillingPage} />
         <PrivateRoute path={HOME} component={Home}></PrivateRoute>
         <PrivateRoute path={LOGIN} component={Login}></PrivateRoute>
         <Route path="*">

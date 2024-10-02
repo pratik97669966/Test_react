@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import Slider from 'react-slick';
 
-import second_banner from '../../assets/Icons/ic_second_banner.png';
-import first_banner from '../../assets/Icons/ic_top_banner.svg';
+import baneer from '../../assets/Icons/baneer.png';
+import painting from '../../assets/Icons/painting.png';
 import { LOGIN } from '../../navigation/Constants';
 import { Address } from '../../redux/dtos/Address';
 import { getRecentUsedLocation, getSelfData, logoutUser } from '../../services/api/DoctorAPI';
@@ -60,28 +60,31 @@ const HomeScreen: React.FC = () => {
   };
 
   const images = [
-    'https://scontent.fpnq13-4.fna.fbcdn.net/v/t39.30808-6/312178340_492705012877051_843077765688750511_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_ohc=4W4nc5rXmMAQ7kNvgEfJmMT&_nc_ht=scontent.fpnq13-4.fna&_nc_gid=AEivyAgP1xpPXzNvfvu5wut&oh=00_AYCYJCrdCxuShiv7XhNFj7cxsR5JA6_Re5ONAy16TVr6oQ&oe=66FA3CE0',
-    'https://scontent.fpnq13-4.fna.fbcdn.net/v/t39.30808-6/312178340_492705012877051_843077765688750511_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_ohc=4W4nc5rXmMAQ7kNvgEfJmMT&_nc_ht=scontent.fpnq13-4.fna&_nc_gid=AEivyAgP1xpPXzNvfvu5wut&oh=00_AYCYJCrdCxuShiv7XhNFj7cxsR5JA6_Re5ONAy16TVr6oQ&oe=66FA3CE0',
-    'https://scontent.fpnq13-4.fna.fbcdn.net/v/t39.30808-6/312178340_492705012877051_843077765688750511_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_ohc=4W4nc5rXmMAQ7kNvgEfJmMT&_nc_ht=scontent.fpnq13-4.fna&_nc_gid=AEivyAgP1xpPXzNvfvu5wut&oh=00_AYCYJCrdCxuShiv7XhNFj7cxsR5JA6_Re5ONAy16TVr6oQ&oe=66FA3CE0',
+    baneer,
+    baneer,
+    baneer,
   ];
 
   const onCardClick = (index: number) => {
     if (index == 0) {
-      history.push('/add-address');
+      localStorage.setItem('combopack', '1');
+      history.push('/billing-page');
     } else if (index == 1) {
-      history.push('/add-address');
+      localStorage.setItem('combopack', '2');
+      history.push('/billing-page');
     } else {
-      history.push('/add-address');
+      localStorage.setItem('combopack', '3');
+      history.push('/billing-page');
     }
   };
 
   return (
     <div className={classes.centerScreen}>
       <div className={classes.container}>
-        <HomeSearchAppBar onChangeLocation={ononChangeLocation} onLogout={onLogout} address={address} />
+        {/* <HomeSearchAppBar onChangeLocation={ononChangeLocation} onLogout={onLogout} address={address} /> */}
         <div className={classes.scrollableContent}>
           <div >
-            <img src='https://scontent.fpnq13-4.fna.fbcdn.net/v/t39.30808-6/438078949_854269576720591_3557140590076617471_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=SYIIhtw0ZrwQ7kNvgHuj4fI&_nc_ht=scontent.fpnq13-4.fna&_nc_gid=AeUBpuhKMFuQyS1gazYvwwg&oh=00_AYCkTH6xUBE-aIa1AKhSXNkGzXE9aygMELO0jMt8NAvQcw&oe=66FA6AE7' alt="Logo" className={classes.logo} />
+            <img src={painting} alt="Logo" className={classes.logo} />
           </div>
           <Slider {...sliderSettings} className={classes.slider}>
             {images.map((image, index) => (

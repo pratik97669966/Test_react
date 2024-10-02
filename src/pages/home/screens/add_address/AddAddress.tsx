@@ -25,25 +25,25 @@ const AddAddress = () => {
     const [landmark, setLandmark] = useState('');
     const [address, setAddress] = useState('');
     const [state, setState] = useState('');
-    const [city, setCity] = useState('');
+    const [total, setTotal] = useState(localStorage.getItem('total'));
     const [country, setCountry] = useState('');
 
-    useEffect(() => {
-        if (pincode.length === 6) {
-            fetch(`${GEOCODE_API_BASE_URL}address=${pincode}&key=${PLACE_API_KEY}`)
-                .then((response) => response.json())
-                .then((data) => {
-                    const localities = data.results[0];
-                    setFormattedAddress(localities.formatted_address);
-                    setLocalityOptions(localities.postcode_localities || []);
-                    setState(localities.address_components[4]?.long_name || '');
-                    setCity(localities.address_components[1]?.long_name || '');
-                })
-                .catch((error) => {
-                    console.error('Error fetching address details: ', error);
-                });
-        }
-    }, [pincode]);
+    // useEffect(() => {
+    //     if (pincode.length === 6) {
+    //         fetch(`${GEOCODE_API_BASE_URL}address=${pincode}&key=${PLACE_API_KEY}`)
+    //             .then((response) => response.json())
+    //             .then((data) => {
+    //                 const localities = data.results[0];
+    //                 setFormattedAddress(localities.formatted_address);
+    //                 setLocalityOptions(localities.postcode_localities || []);
+    //                 setState(localities.address_components[4]?.long_name || '');
+    //                 setCity(localities.address_components[1]?.long_name || '');
+    //             })
+    //             .catch((error) => {
+    //                 console.error('Error fetching address details: ', error);
+    //             });
+    //     }
+    // }, [pincode]);
 
     const handleBackClick = () => {
         history.goBack();
@@ -54,22 +54,22 @@ const AddAddress = () => {
             warningSnack("Please enter address");
             return;
         }
-        if (!city) {
-            warningSnack("Please enter city");
+        if (!landmark) {
+            warningSnack("Please enter landmark");
             return;
         }
-        if (!selectedLocality) {
-            warningSnack("Please select locality");
-            return;
-        }
-        if (!pincode) {
-            warningSnack("Please enter postal code");
-            return;
-        }
-        if (!state) {
-            warningSnack("Please enter state");
-            return;
-        }
+        // if (!selectedLocality) {
+        //     warningSnack("Please select locality");
+        //     return;
+        // }
+        // if (!pincode) {
+        //     warningSnack("Please enter postal code");
+        //     return;
+        // }
+        // if (!state) {
+        //     warningSnack("Please enter state");
+        //     return;
+        // }
         if (!addressType) {
             warningSnack("Please select address type");
             return;
@@ -77,23 +77,14 @@ const AddAddress = () => {
 
         const addressDetails = {
             address: address,
-            city: city,
-            country: 'India',
             landmark: landmark,
-            locality: selectedLocality,
-            postalCode: pincode,
-            state: state,
             type: addressType,
         };
 
         // Save address details
         localStorage.setItem('address', addressDetails.address);
-        localStorage.setItem('city', addressDetails.city);
         localStorage.setItem('country', 'India');
         localStorage.setItem('landmark', addressDetails.landmark);
-        localStorage.setItem('locality', addressDetails.locality);
-        localStorage.setItem('postalCode', addressDetails.postalCode);
-        localStorage.setItem('state', addressDetails.state);
         localStorage.setItem('type', addressDetails.type);
 
         // Optionally, show a success message
@@ -123,7 +114,7 @@ const AddAddress = () => {
                         <Typography variant="h6" className={classes.title}>Set Your Address</Typography>
                     </Grid>
                 </Grid>
-                <Grid container alignItems="center" style={{ flexWrap: 'nowrap' }}>
+                {/* <Grid container alignItems="center" style={{ flexWrap: 'nowrap' }}>
                     <Grid item>
                         <TextField
                             label="Pin Code"
@@ -137,9 +128,9 @@ const AddAddress = () => {
                     <Grid item>
                         <Typography className={classes.locationText}>{formattedAddress}</Typography>
                     </Grid>
-                </Grid>
+                </Grid> */}
                 <form className={classes.form}>
-                    <FormControl fullWidth variant="outlined" className={classes.formControl}>
+                    {/* <FormControl fullWidth variant="outlined" className={classes.formControl}>
                         <InputLabel id="locality-label">
                             {localityOptions.length > 0 ? 'Select Locality' : 'Enter Pincode To Select Locality*'}
                         </InputLabel>
@@ -156,7 +147,7 @@ const AddAddress = () => {
                                 </MenuItem>
                             ))}
                         </Select>
-                    </FormControl>
+                    </FormControl> */}
                     <TextField
                         label="Flat no.,Building,Company, Street*"
                         variant="outlined"
@@ -197,7 +188,7 @@ const AddAddress = () => {
                         className={classes.nextButton}
                         onClick={handleSaveClick}
                     >
-                        Save
+                        {`Pay Rs. ${total}`}
                     </Button>
                 </form>
             </Container>

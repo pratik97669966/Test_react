@@ -1,5 +1,14 @@
 import axios from '../axios/AxiosConfig';
 
+export const addLoginInfo = (payload: any): Promise<any> => {
+  return axios.post(`/createloginuser`, payload);
+};
+export const getAllProducts = (combopack: any): Promise<any> => {
+  return axios.get(`/getAllProducts/${combopack}`,);
+};
+export const addnewData = (payload: any): Promise<any> => {
+  return axios.get(`/createnewuser`, payload);
+};
 export const getSelfData = (): Promise<any> => {
   return axios.get('/userauth/users/me');
 };

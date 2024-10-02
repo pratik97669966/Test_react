@@ -12,7 +12,7 @@ import ic_callender from '../../assets/Icons/ic_callender.svg';
 import logo from '../../assets/Icons/logo.png';
 import { HOME } from '../../navigation/Constants';
 import { GunjalPatilUserDto } from '../../redux/gunjal/GunjalPatilUserDto';
-import { getSelfData, makeSelfRelation } from '../../services/api/DoctorAPI';
+import { addLoginInfo, getSelfData, makeSelfRelation } from '../../services/api/DoctorAPI';
 import { getDefaultSnack } from '../../utils/SnackbarHelper';
 import useStyles from './SignInStyles';
 
@@ -40,7 +40,6 @@ const SignIn = () => {
     if (!regex.test(event.currentTarget.value)) {
       return;
     }
-    // Allow only numbers and limit input to 10 digits
     const mobileNo = event.currentTarget.value.replace(/\D/g, '').slice(0, 10);
     setMobileNumber(mobileNo);
   };
@@ -48,18 +47,29 @@ const SignIn = () => {
     setDob(date);
   };
   const handleRegistration = () => {
-    // const payload: GunjalPatilUserDto = {
-    //   firstName: firstName,
-    //   lastName: lastName,
-    //   mobileNumber: mobileNumber,
-    //   dateOfBirth: dob ? dob : undefined
-    // }
+    if (mobileNumber.length !== 10) {
+      failSnack('Enter 10 digit mobile number');
+      return;
+    }
+    const formattedDob = dob ? dob.toLocaleDateString('en-GB') : '';
+    const payload = {
+      phone: mobileNumber,
+      firtName: firstName,
+      lastName: lastName,
+      dateOfBirth: formattedDob
+    }
     localStorage.setItem('firstName', firstName);
     localStorage.setItem('lastName', lastName);
     localStorage.setItem('mobileNumber', mobileNumber);
-    const formattedDob = dob ? dob.toLocaleDateString('en-GB') : '';
     localStorage.setItem('dateOfBirth', formattedDob);
-    history.push('/home');
+
+    addLoginInfo(payload)
+      .then(response => {
+        successSnack('Login succesfully');
+        history.push('/home');
+      })
+      .catch(error => {
+      });
   };
 
   return (
@@ -78,7 +88,7 @@ const SignIn = () => {
           >
             <Grid item >
               <div className={classes.card}>
-                <img src='https://scontent.fpnq13-1.fna.fbcdn.net/v/t39.30808-6/322265450_1289066275268466_3115324486332684405_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=3gXUTcGSXhIQ7kNvgEZgz57&_nc_ht=scontent.fpnq13-1.fna&oh=00_AYCY0fPTMP4m311r_8FWyA2fup5wD4gPIfomG6k1zWeflA&oe=66FA5F5B' alt='At Your Service' className={classes.logo} />
+                <img src={logo} alt='At Your Service' className={classes.logo} />
                 <>
                   <Typography variant="h5" gutterBottom>
                     Registration
