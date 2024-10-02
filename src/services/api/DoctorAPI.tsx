@@ -7,7 +7,7 @@ export const getAllProducts = (combopack: any): Promise<any> => {
   return axios.get(`/getAllProducts/${combopack}`,);
 };
 export const addnewData = (payload: any): Promise<any> => {
-  return axios.get(`/createnewuser`, payload);
+  return axios.post(`/createnewuser`, payload);
 };
 export const getSelfData = (): Promise<any> => {
   return axios.get('/userauth/users/me');
