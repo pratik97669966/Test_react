@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Container, Grid, InputAdornment, InputLabel, MenuItem, Paper, Select, TextField, TextFieldProps, Typography } from '@material-ui/core';
+import { Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, InputAdornment, InputLabel, MenuItem, Paper, Select, TextField, TextFieldProps, Typography } from '@material-ui/core';
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
 import { DatePicker } from '@material-ui/pickers';
 import axios from 'axios';
@@ -10,6 +10,7 @@ import ic_callender from '../../assets/Icons/ic_callender.svg';
 import logo from '../../assets/Icons/logo.png';
 import { addData } from '../../services/api/DoctorAPI';
 import { getDefaultSnack } from '../../utils/SnackbarHelper';
+import { BillData } from './AllData';
 import useStyles from './SignInStyles';
 
 const AddNewData = () => {
@@ -31,6 +32,8 @@ const AddNewData = () => {
   const [paymentMode, setPaymentMode] = useState('Online');
   const [note, setNote] = useState('');
   const numbers = Array.from({ length: 100 }, (_, i) => i + 1);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<BillData>();
 
   useEffect(() => {
     let basePrice = 2999;
@@ -66,15 +69,15 @@ const AddNewData = () => {
     setDeliveryDate(date);
   };
   const openAllDataList = () => {
-    history.push('/all-data')
+    history.push('/all-data');
   };
   const handleSave = async () => {
     if (mobileNumber.length !== 10) {
       failSnack('Enter 10 digit mobile number');
       return;
     }
-    const formattedDob = dob ? dob.toLocaleDateString('en-GB') : '';
-    const formattedDeliveryDate = deliveryDate ? deliveryDate.toLocaleDateString('en-GB') : '';
+    const formattedDob = dob ? dob : '';
+    const formattedDeliveryDate = deliveryDate ? deliveryDate : '';
     const payload = {
       phone: mobileNumber,
       firstName: firstName,
@@ -91,15 +94,16 @@ const AddNewData = () => {
       note,
       deliveryCharges,
       deliveryDate: formattedDeliveryDate,
-      status: ""
+      status: '',
     };
     try {
       await axios.post('https://gunjalpatilserver.onrender.com/data', payload, {
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
       }).then((response) => {
         if (response.status === 200) {
+          setSelectedItem(response.data);
           setFirstName('');
           setMobileNumber('');
           setAddress('');
@@ -108,8 +112,9 @@ const AddNewData = () => {
           setPaidAmount('');
           setNote('');
           setQuantity(1);
-          setDob(new Date())
+          setDob(new Date());
           successSnack('Added successfully');
+          setOpenDialog(true);
         } else {
           failSnack('Failed to add data');
         }
@@ -124,7 +129,65 @@ const AddNewData = () => {
       failSnack('An unexpected error occurred');
     }
   };
+  const handleDialogClose = (p0: boolean) => {
+    setOpenDialog(false);
+    const item = selectedItem;
+    if (item && p0) {
+      const formattedDateOfBirth = item.dateOfBirth ? new Date(item.dateOfBirth).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+      const formattedDeliveryDate = item.deliveryDate ? new Date(item.deliveryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
 
+      const message = `
+  *गुंजाळ पाटील भेळ व मिसळ*
+    
+  पत्ता:
+  58/2, गुंजाळ पाटील कॉर्नर,
+  जाखुरी, ता. संगमनेर, जि. अहिल्यानगर. 422605
+  संपर्क क्रमांक: 
+  8888147262 , 9923469913
+    
+  *प्रिय सर/मॅडम*,
+  आपल्या दिवाळी फराळ बुकिंगबद्दल धन्यवाद! 🙏 
+  कृपया आपल्या ऑर्डरचे बिल तपासा:
+    
+  ${formattedDateOfBirth ? 'तारीख: ' + formattedDateOfBirth : ''}
+  बिल क्रमांक: ${item.id}
+  *ग्राहकाचे नाव: ${item.firstName}*
+  संपर्क क्रमांक: ${item.phone}
+    
+  ऑर्डर तपशील:
+    
+  ${item.comboPack} Combo Pack
+  नग: ${item.qty}
+  किंमत: ${item.comboPrice}/- रुपये
+  ${parseFloat(item.deliveryCharges) > 0 ? 'डिलिव्हरी चार्जेस: ' + item.deliveryCharges + '/- रुपये' : ''} 
+    
+  *एकूण रक्कम: ${item.price}/- रुपये*
+    
+  जमा रक्कम: ${item.paidAmount}/- रुपये
+  
+  *शिल्लक रक्कम: ${item.pendingAmount}/- रुपये*
+    
+  अभिनंदन ${item.firstName} आपल्या दिवाळीच्या फराळाची बुकिंग झालेली आहे.
+  ${formattedDeliveryDate ? 'आपला कोम्बो पॅक घेण्याची अंदाजे तारीख: ' + formattedDeliveryDate : ''}
+  
+  आमच्या सेवांचा लाभ घेतल्याबद्दल धन्यवाद..! 🙏 
+    
+  🪔🪔🪔 आपणास आणि आपल्या संपूर्ण परिवाराला दिवाळीच्या खूप खूप शुभेच्छा! 🪔🪔🪔
+    
+  आदरपूर्वक,
+  *गुंजाळ पाटील भेळ व मिसळ*
+  
+  आमच्याबद्दल अधिक जाणून घेण्यासाठी खालील लिंकवर क्लिक करून आमच्या व्हॉट्सऍप ग्रुपला जॉईन करा.
+  https://chat.whatsapp.com/L52wkjvPjkMCNhGldT9Fdb
+
+  तसेच आमच्या इंस्टाग्राम पेजला फॉलो करा.
+  https://www.instagram.com/gunjal_patil_bhel_and_misal/profilecard/?igsh=YzE3a2hqcGh4OW40
+`;
+
+      const url = `https://api.whatsapp.com/send?phone=+91${item.phone}&text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
+    }
+  };
   return (
     <div className={classes.centerScreen}>
       <Container className={classes.container}>
@@ -355,6 +418,24 @@ const AddNewData = () => {
           </Grid>
         </div>
       </Container>
+      {/* Dialog for confirmation */}
+      <Dialog open={openDialog} onClose={() => handleDialogClose(false)}>
+        <DialogTitle>जतन झाले</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            व्हॉट्सऍप
+            व्हा उघडायचे आहे का?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleDialogClose(false)} color="primary">
+            नाही
+          </Button>
+          <Button onClick={() => handleDialogClose(true)} color="primary">
+            होय
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
