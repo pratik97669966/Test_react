@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Container, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@material-ui/core';
+import {
+  Button, Container, Paper, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography,
+} from '@material-ui/core';
+import { WhatsApp } from '@material-ui/icons';
 import axios from 'axios';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { useSnackbar } from 'notistack';
 
-import { getDefaultSnack } from '../../utils/SnackbarHelper';
 import useStyles from './AllDataStyles';
 
 export interface BillData {
@@ -21,81 +21,99 @@ export interface BillData {
   pendingAmount: number;
   phone: string;
   price: number;
-  comboPrice: number,
+  comboPrice: number;
   qty: number;
   status: string;
   deliveryDate: string;
   deliveryStatus: string;
-  deliveryCharges:string;
+  deliveryCharges: string;
 }
+
 const AllData = () => {
   const classes = useStyles();
-  const { successSnack, failSnack } = getDefaultSnack(useSnackbar().enqueueSnackbar);
+  const { enqueueSnackbar } = useSnackbar();
   const [data, setData] = useState<BillData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedItem, setSelectedItem] = useState<any>(null); // State to hold the selected item for bill generation
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get('https://gunjalpatilserver.onrender.com/data');
         setData(response.data);
-        successSnack('Data fetched successfully');
+        enqueueSnackbar('Data fetched successfully', { variant: 'success' });
       } catch (error) {
-        failSnack('Failed to fetch data');
+        enqueueSnackbar('Failed to fetch data', { variant: 'error' });
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, []);
+  }, [enqueueSnackbar]);
 
-  // Filtering logic
   const filteredData = data.filter((item) => {
     const { phone, firstName, id } = item;
-    const normalizedPhone = String(phone); // Ensure phone is a string
+    const normalizedPhone = String(phone);
     return (
       normalizedPhone.includes(searchTerm) ||
       firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      String(id).includes(searchTerm) // Ensure id is a string for comparison
+      String(id).includes(searchTerm)
     );
   });
-  const createBillPDF = (data: BillData) => {
-    const doc = new jsPDF();
 
-    // Add company logo
-    doc.addImage("https://cdn.dotpe.in/longtail/store-logo/1044445/6mx9Elc5.webp", 'PNG', 10, 10, 30, 30); // Adjust position and size
+  const handleWhatsAppClick = async (item: BillData) => {
+    if (item.phone) {
+      const formattedDateOfBirth = item.dateOfBirth ? new Date(item.dateOfBirth).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "";
+      const formattedDeliveryDate = item.deliveryDate ? new Date(item.deliveryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "";
 
-    // Set title
-    doc.setFontSize(20);
-    doc.text('Invoice', 14, 50);
-    doc.setFontSize(12);
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 60);
+      const message = `
+  *गुंजाळ पाटील भेळ व मिसळ*
+    
+  पत्ता: 58/2, गुंजाळ पाटील कॉर्नर, जाखुरी, ता. संगमनेर, जि. अहिल्यानगर. 422605
+  संपर्क क्रमांक: 8888147262, 9923469913
+    
+  *प्रिय सर/मॅडम*,
+  आपल्या दिवाळी फराळ बुकिंगबद्दल धन्यवाद! कृपया आपल्या ऑर्डरचे बिल तपासा:
+    
+  ${formattedDateOfBirth? "तारीख: " + formattedDateOfBirth : ""}
+  बिल क्रमांक: ${item.id}
+  *ग्राहकाचे नाव: ${item.firstName}*
+  संपर्क क्रमांक: ${item.phone}
+    
+  ऑर्डर तपशील:
+    
+  ${item.comboPack} Combo Pack
+  नग: ${item.qty}
+  किंमत: ${item.comboPrice}
+  ${parseFloat(item.deliveryCharges) > 0 ? "डिलिव्हरी चार्जेस: " + item.deliveryCharges : ""} 
+    
+  *एकूण रक्कम: ${item.price} रुपये*
+    
+  जमा रक्कम: ${item.paidAmount} रुपये
+  
+  *शिल्लक रक्कम: ${item.pendingAmount} रुपये*
+    
+  आपली फराळाची बुकिंग झालेली आहे.
+  ${formattedDeliveryDate ? "आपला कोम्बो पॅक घेण्याची अंदाजे तारीख: " + formattedDeliveryDate : ""}
+  
+  आमच्या सेवांचा लाभ घेतल्याबद्दल धन्यवाद..! 
+    
+  🪔🪔🪔 आपणास आणि आपल्या संपूर्ण परिवाराला दिवाळीच्या खूप खूप शुभेच्छा! 🪔🪔🪔
+    
+  आदरपूर्वक,
+  *गुंजाळ पाटील भेळ व मिसळ*
+  आमच्याबद्दल अधिक जाणून घेण्यासाठी आमच्या पेज ला फॉलो करा 
+  https://www.instagram.com/gunjal_patil_bhel_and_misal/profilecard/?igsh=YzE3a2hqcGh4OW40
+  
+  तसेच आमच्या व्हॉट्सऍप ग्रुप ला जॉईन करा
+  https://chat.whatsapp.com/L52wkjvPjkMCNhGldT9Fdb`;
 
-    // Add customer details
-    doc.text(`Name: ${data.firstName}`, 14, 70);
-    doc.text(`Phone: ${data.phone}`, 14, 80);
-    doc.text(`Address: ${data.address}`, 14, 90);
-
-    // Add table for details
-    autoTable(doc, {
-      head: [['Item', 'Price', 'Paid Amount', 'Status']],
-      body: [
-        [
-          data.comboPack,
-          data.price.toString(),
-          data.paidAmount.toString(),
-          data.status,
-        ],
-      ],
-      startY: 100,
-    });
-
-    // Save the PDF
-    doc.save(`Invoice_${data.firstName}.pdf`);
-    successSnack('Bill created successfully!');
+      const url = `https://api.whatsapp.com/send?phone=+91${item.phone}&text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
+    }
   };
+
+
   return (
     <div>
       <Container className={classes.container}>
@@ -134,15 +152,16 @@ const AllData = () => {
                     <TableCell>{item.branch}</TableCell>
                     <TableCell>{item.note}</TableCell>
                     <TableCell>{item.status}</TableCell>
-                    <TableCell>{item.deliveryDate}</TableCell>
+                    <TableCell>{item.deliveryDate ? new Date(item.deliveryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}</TableCell>
                     <TableCell>{item.deliveryStatus}</TableCell>
                     <TableCell>
                       <Button
                         variant="contained"
-                        color="primary"
-                        onClick={() => createBillPDF(item)} // Set the selected item for billing
+                        startIcon={<WhatsApp />}
+                        onClick={() => handleWhatsAppClick(item)}
+                        style={{ marginLeft: '10px' }}
                       >
-                        Create Bill
+                        Send via WhatsApp
                       </Button>
                     </TableCell>
                   </TableRow>
