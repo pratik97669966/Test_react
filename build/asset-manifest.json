@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.ca5b7c64.css",
-    "main.js": "/static/js/main.2fd5ff46.js",
+    "main.js": "/static/js/main.2c8672ea.js",
     "static/js/206.88129f14.chunk.js": "/static/js/206.88129f14.chunk.js",
     "static/media/matanbhakri.png": "/static/media/matanbhakri.3edb339643f03de0f63d.png",
     "static/media/vegbiryani.png": "/static/media/vegbiryani.52e3f802e32a90d75af4.png",
@@ -21,6 +21,6 @@
   },
   "entrypoints": [
     "static/css/main.ca5b7c64.css",
-    "static/js/main.2fd5ff46.js"
+    "static/js/main.2c8672ea.js"
   ]
 }
