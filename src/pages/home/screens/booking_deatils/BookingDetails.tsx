@@ -159,7 +159,7 @@ const BookingDetails: React.FC = () => {
       key: 'rzp_test_kf3XAPAICibetF',
       amount: (consultationCharges !== null ? parseFloat(consultationCharges) : 0) * 100,
       currency: 'INR',
-      name: 'At Your Service',
+      name: 'Gunjal patil bhel and misal',
       description: 'Consultation Fee',
       image: 'https://atyourservice.homes/wp-content/uploads/2024/08/AYS-logo-new-theme-02-02-Small.png',
       order_id: orderId,

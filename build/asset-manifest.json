@@ -1,13 +1,20 @@
 {
   "files": {
     "main.css": "/static/css/main.ca5b7c64.css",
-    "main.js": "/static/js/main.b12642f1.js",
+    "main.js": "/static/js/main.d1622ae2.js",
     "static/js/206.88129f14.chunk.js": "/static/js/206.88129f14.chunk.js",
+    "static/media/matanbhakri.png": "/static/media/matanbhakri.3edb339643f03de0f63d.png",
+    "static/media/vegbiryani.png": "/static/media/vegbiryani.52e3f802e32a90d75af4.png",
+    "static/media/offer1.jpg": "/static/media/offer1.01df75c03f705ca080af.jpg",
+    "static/media/misal.png": "/static/media/misal.30890f5a6e87263dc748.png",
+    "static/media/bhel.png": "/static/media/bhel.7924e04cc899818ae07f.png",
     "static/media/ic_medicine_delivery.png": "/static/media/ic_medicine_delivery.c65839be7ea8f82f8957.png",
+    "static/media/painting.png": "/static/media/painting.20383169002335efd544.png",
     "static/media/Roboto-Medium.ttf": "/static/media/Roboto-Medium.7c8d04cd831df3033c8a.ttf",
     "static/media/ic_lab_test.png": "/static/media/ic_lab_test.ca5681e79afe8c6fd0f8.png",
     "static/media/Sarabun-Medium.ttf": "/static/media/Sarabun-Medium.04aaa5718df124f393b5.ttf",
     "static/media/Sarabun-Regular.ttf": "/static/media/Sarabun-Regular.e4a771fcf9af91e34def.ttf",
+    "static/media/logo.png": "/static/media/logo.7feeba3167d60b3ae438.png",
     "static/media/ic_edit_change.svg": "/static/media/ic_edit_change.a7de996c360f601a156723b8d8e541ab.svg",
     "static/media/ic_call.svg": "/static/media/ic_call.efe9b8abd13a183ddf05d5fd162942e1.svg",
     "static/media/slick.svg": "/static/media/slick.2630a3e3eab21c607e21.svg",
@@ -20,6 +27,6 @@
   },
   "entrypoints": [
     "static/css/main.ca5b7c64.css",
-    "static/js/main.b12642f1.js"
+    "static/js/main.d1622ae2.js"
   ]
 }

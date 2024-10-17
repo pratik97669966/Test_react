@@ -88,7 +88,7 @@ const SignIn = () => {
           >
             <Grid item >
               <div className={classes.card}>
-                <img src={logo} alt='At Your Service' className={classes.logo} />
+                <img src={logo} alt='Gunjal patil bhel and misal' className={classes.logo} />
                 <>
                   <Typography variant="h5" gutterBottom>
                     Registration
