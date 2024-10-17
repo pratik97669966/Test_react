@@ -91,7 +91,7 @@ const SignIn = () => {
                 <img src={logo} alt='Gunjal patil bhel and misal' className={classes.logo} />
                 <>
                   <Typography variant="h5" gutterBottom>
-                    Registration
+                    New
                   </Typography>
                   <TextField
                     className={classes.textField}

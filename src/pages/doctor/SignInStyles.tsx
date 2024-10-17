@@ -9,7 +9,7 @@ export default makeStyles((theme: Theme) =>
   createStyles({
     container: {
       maxWidth: '430px',
-      minHeight: 'calc(100vh - 80px)',
+      minHeight: 'auto',
       position: 'relative',
       display: 'flex',
       flexDirection: 'column',
@@ -35,10 +35,33 @@ export default makeStyles((theme: Theme) =>
       backgroundColor: '#ffffff',
       padding: '20px',
       paddingBottom: theme.spacing(2),
-      height: '100vh',
+      height: 'auto',
       [theme.breakpoints.down('sm')]: {
         padding: '0',
         alignItems: 'flex-start',
+      },
+    },
+    toggleButtonGroup: {
+      marginTop: theme.spacing(2),
+      marginBottom: theme.spacing(2),
+      display: 'flex',
+      fontSize: '14px',
+      justifyContent: 'center',
+      '& .MuiToggleButton-root': {
+        margin: theme.spacing(0.5),
+        borderRadius: theme.shape.borderRadius,
+        borderColor: theme.palette.primary.main,
+        color: theme.palette.primary.main,
+        '&.Mui-selected': {
+          backgroundColor: theme.palette.primary.main,
+          color: theme.palette.common.white,
+          '&:hover': {
+            backgroundColor: theme.palette.primary.dark,
+          },
+        },
+        '&:hover': {
+          backgroundColor: theme.palette.action.hover,
+        },
       },
     },
     sliderContainer: {

@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 
 import { HOME, LOGIN, ROOT } from '../navigation/Constants';
-import Login from '../pages/doctor/SignIn';
+import AddNewData from '../pages/doctor/AddNewData';
+import AllData from '../pages/doctor/AllData';
 import Home from '../pages/home/HomeScreen';
 import AddAddress from '../pages/home/screens/add_address/AddAddress';
 import BillingPage from '../pages/home/screens/billing_page/BIllingPage';
@@ -27,24 +28,12 @@ export const RouterConfig = () => {
     <div>
       <Switch>
         <Route exact path={ROOT}>
-          {getTokenSourceMapRange() ? <Redirect to={HOME} /> : <Login />}
+          {getTokenSourceMapRange() ? <Redirect to={HOME} /> : <AddNewData />}
         </Route>
-
-        <Route path="/family-member-selection" component={FamilyMemberSelection} />
-
-        <Route path="/select-complaint" component={SelectComplaints} />
-        <Route path="/booking-details" component={BookingTimer} />
-
-        <Route path="/add-address" component={AddAddress} />
-
-        <Route path="/tearms-and-condition" component={BookingDetails} />
-
-        <Route path="/lab-test" component={Lab} />
-        <Route path="/medicine-delivery" component={Medicine} />
-        <Route path="/payment_screen" component={PaymentScreen} />
         <Route path="/billing-page" component={BillingPage} />
+        <Route path="/all-data" component={AllData} />
         <PrivateRoute path={HOME} component={Home}></PrivateRoute>
-        <PrivateRoute path={LOGIN} component={Login}></PrivateRoute>
+        <PrivateRoute path={LOGIN} component={AddNewData}></PrivateRoute>
         <Route path="*">
           <NotFound />
         </Route>

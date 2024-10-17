@@ -3,6 +3,9 @@ import axios from '../axios/AxiosConfig';
 export const addLoginInfo = (payload: any): Promise<any> => {
   return axios.post(`/createloginuser`, payload);
 };
+export const addData = (payload: any): Promise<any> => {
+  return axios.post(`/createloginuser`, payload);
+};
 export const getAllProducts = (combopack: any): Promise<any> => {
   return axios.get(`/getAllProducts/${combopack}`,);
 };
