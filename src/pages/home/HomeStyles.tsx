@@ -142,7 +142,7 @@ const useStyles = makeStyles((theme) => ({
   recommendedSection: {
   },
   cardMedia: {
-    height: 140,
+    height: 210,
   },
   categoriesContainer: {
     display: 'flex',

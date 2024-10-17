@@ -57,75 +57,67 @@ const HomeScreen: React.FC = () => {
     autoplaySpeed: 4000,
   };
 
-  const sections: Section[] = 
-  [
+  const sections: Section[] =
+    [
 
-    {
-      type: 'category',
-      data: [
-        { name: 'व्हेज', icon: vegbiryani },
-        { name: 'नॉनव्हेज', icon: matanbhakri },
-        { name: 'भेळ', icon: bhel },
-      ],
-    },
-    {
-      type: 'banner',
-      data: [
-        { bannerImage: bannerImage },
-        { bannerImage: bannerImage },
-      ],
-    },
-    {
-      type: 'recommendation',
-      title: 'गुंजाळ पाटील स्पेशल मेनू',
-      data: [
-        { name: 'स्पेशल मिसळ', price: '₹.७०/- फक्त', image: productImage, minDescription: 'अस्सल संगमनेरी मिसळ चव अशी हवी हवीशी वाटणारी.' },
-        { name: 'मटन भाकरी', price: '₹.१९९/- फक्त', image: productImage, minDescription: 'अस्सल हैद्राबादी स्टाईल बिर्याणी शुद्धशाकाहारी.' },
-      ],
-    },
-    {
-      type: 'recommendation',
-      title: 'व्हेज चटका',
-      data: [
-        { name: 'व्हेज बिर्याणी', price: '₹.१५०/- फक्त', image: vegbiryani, minDescription: 'अस्सल हैद्राबादी स्टाईल बिर्याणी शुद्धशाकाहारी.' },
-        { name: 'भेळ', price: '₹.५०/- फक्त', image: bhel, minDescription: 'अस्सल पुणेरी भेळ चव अशी हवी हवीशी वाटणारी.' },
-      ],
-    },
-    {
-      type: 'singleBanner',
-      data: [
-        { bannerImage: 'https://registrationguru.in/assets/img/ProposalImg/1-min.png' },
-      ],
-    },
-    {
-      type: 'recommendation',
-      title: 'नॉनव्हेज झटका',
-      data: [
-        { name: 'चिकन दम बिर्याणी', price: '₹.१५०/- फक्त', image: vegbiryani, minDescription: 'अस्सल हैद्राबादी स्टाईल बिर्याणी शुद्धशाकाहारी.' },
-        { name: 'मटन भाकरी', price: '₹.१९९/- फक्त', image: productImage, minDescription: 'अस्सल हैद्राबादी स्टाईल बिर्याणी शुद्धशाकाहारी.' },
-      ],
-    },
-    {
-      type: 'recommendation',
-      title: 'स्पेशल भेळ मेनू',
-      data: [
-        { name: 'भेळ', price: '₹.५०/- फक्त', image: bhel, minDescription: 'अस्सल पुणेरी भेळ चव अशी हवी हवीशी वाटणारी.' },
-        { name: 'ओली भेळ', price: '₹.६०/- फक्त', image: bhel, minDescription: 'अस्सल पुणेरी भेळ चव अशी हवी हवीशी वाटणारी.' },
-        { name: 'मटकी भेळ', price: '₹.६०/- फक्त', image: bhel, minDescription: 'अस्सल पुणेरी भेळ चव अशी हवी हवीशी वाटणारी.' },
-      ],
-    },
-    {
-      type: 'singleBanner',
-      data: [
-        { bannerImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTI7qByogr549XiTCh4IbzRTE2a8BpvxawbUg&s' },
-      ],
-    },
-    // Add more sections as needed
-  ];
+      {
+        type: 'singleBanner',
+        data: [
+          { bannerImage: "https://i.postimg.cc/4y9bMqrS/Whats-App-Image-2024-10-17-at-08-05-32-a82413e6.jpg" },
+        ],
+      },
+      {
+        type: 'category',
+        data: [
+          { name: 'व्हेज बिर्याणी', icon: vegbiryani },
+          { name: 'नॉनव्हेज', icon: matanbhakri },
+          { name: 'भेळ', icon: bhel },
+        ],
+      },
+      {
+        type: 'recommendation',
+        title: 'गुंजाळ पाटील स्पेशल मेनू',
+        data: [
+          { name: 'स्पेशल मिसळ', price: '₹.७०/- फक्त', image: productImage, minDescription: 'अस्सल संगमनेरी मिसळ चव अशी हवी हवीशी वाटणारी.' },
+          { name: 'मटन भाकरी', price: '₹.१९९/- फक्त', image: productImage, minDescription: 'अस्सल हैद्राबादी स्टाईल बिर्याणी शुद्धशाकाहारी.' },
+        ],
+      },
+      {
+        type: 'recommendation',
+        title: 'व्हेज चटका',
+        data: [
+          { name: 'व्हेज बिर्याणी', price: '₹.१५०/- फक्त', image: vegbiryani, minDescription: 'अस्सल हैद्राबादी स्टाईल बिर्याणी शुद्धशाकाहारी.' },
+          { name: 'भेळ', price: '₹.५०/- फक्त', image: bhel, minDescription: 'अस्सल पुणेरी भेळ चव अशी हवी हवीशी वाटणारी.' },
+        ],
+      },
+      {
+        type: 'recommendation',
+        title: 'नॉनव्हेज झटका',
+        data: [
+          { name: 'चिकन दम बिर्याणी', price: '₹.१५०/- फक्त', image: vegbiryani, minDescription: 'अस्सल हैद्राबादी स्टाईल बिर्याणी शुद्धशाकाहारी.' },
+          { name: 'मटन भाकरी', price: '₹.१९९/- फक्त', image: productImage, minDescription: 'अस्सल हैद्राबादी स्टाईल बिर्याणी शुद्धशाकाहारी.' },
+        ],
+      },
+      {
+        type: 'recommendation',
+        title: 'स्पेशल भेळ मेनू',
+        data: [
+          { name: 'भेळ', price: '₹.५०/- फक्त', image: bhel, minDescription: 'अस्सल पुणेरी भेळ चव अशी हवी हवीशी वाटणारी.' },
+          { name: 'ओली भेळ', price: '₹.६०/- फक्त', image: bhel, minDescription: 'अस्सल पुणेरी भेळ चव अशी हवी हवीशी वाटणारी.' },
+          { name: 'मटकी भेळ', price: '₹.६०/- फक्त', image: bhel, minDescription: 'अस्सल पुणेरी भेळ चव अशी हवी हवीशी वाटणारी.' },
+        ],
+      },
+      {
+        type: 'singleBanner',
+        data: [
+          { bannerImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTI7qByogr549XiTCh4IbzRTE2a8BpvxawbUg&s' },
+        ],
+      },
+    ];
 
   const onCardClick = (index: number) => {
-    localStorage.setItem('combopack', String(index + 1));
-    history.push('/billing-page');
+    // localStorage.setItem('combopack', String(index + 1));
+    // history.push('/billing-page');
   };
 
   return (
@@ -162,7 +154,7 @@ const HomeScreen: React.FC = () => {
                   {(section.data as Category[]).map((category, index) => (
                     <div key={index} className={classes.categoryIcon}>
                       <img src={category.icon} alt={category.name} className={classes.circleCard} />
-                      <Typography variant="h6" style={{ textAlign: 'center', fontSize: '14px' }}>{category.name}</Typography>
+                      <Typography variant="h6" style={{ textAlign: 'center', fontStyle: 'bold', fontSize: '14px' }}>{category.name}</Typography>
                     </div>
                   ))}
                 </div>
@@ -181,7 +173,7 @@ const HomeScreen: React.FC = () => {
                           title={product.name}
                         />
                         <CardContent>
-                          <Typography gutterBottom variant="h6" component="h2">
+                          <Typography gutterBottom variant="h6" style={{ fontStyle: 'bold', }} component="h2">
                             {product.name}
                           </Typography>
                           <Typography variant="body2" color="textSecondary" component="p">

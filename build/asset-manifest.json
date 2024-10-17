@@ -1,11 +1,10 @@
 {
   "files": {
     "main.css": "/static/css/main.ca5b7c64.css",
-    "main.js": "/static/js/main.d1622ae2.js",
+    "main.js": "/static/js/main.abd1965d.js",
     "static/js/206.88129f14.chunk.js": "/static/js/206.88129f14.chunk.js",
     "static/media/matanbhakri.png": "/static/media/matanbhakri.3edb339643f03de0f63d.png",
     "static/media/vegbiryani.png": "/static/media/vegbiryani.52e3f802e32a90d75af4.png",
-    "static/media/offer1.jpg": "/static/media/offer1.01df75c03f705ca080af.jpg",
     "static/media/misal.png": "/static/media/misal.30890f5a6e87263dc748.png",
     "static/media/bhel.png": "/static/media/bhel.7924e04cc899818ae07f.png",
     "static/media/ic_medicine_delivery.png": "/static/media/ic_medicine_delivery.c65839be7ea8f82f8957.png",
@@ -27,6 +26,6 @@
   },
   "entrypoints": [
     "static/css/main.ca5b7c64.css",
-    "static/js/main.d1622ae2.js"
+    "static/js/main.abd1965d.js"
   ]
 }
