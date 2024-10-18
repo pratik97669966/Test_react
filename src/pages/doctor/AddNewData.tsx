@@ -250,7 +250,7 @@ const AddNewData = () => {
                   <MenuItem value="Pradeep">Pradeep</MenuItem>
                   <MenuItem value="Amol">Amol</MenuItem>
                   <MenuItem value="Pratiksha">Pratiksha</MenuItem>
-                  <MenuItem value="Father">Father</MenuItem>
+                  <MenuItem value="Anna">Anna</MenuItem>
                 </Select>
                 <InputLabel>Branch</InputLabel>
                 <Select
