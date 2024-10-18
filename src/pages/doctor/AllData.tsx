@@ -16,6 +16,7 @@ export interface BillData {
   dateOfBirth: string;
   firstName: string;
   note: string;
+  fromWho:string;
   paidAmount: number;
   paymentMode: string;
   pendingAmount: number;
@@ -163,6 +164,7 @@ const AllData = () => {
                   <TableCell style={{ border: '1px solid #ccc' }}>{item.phone}</TableCell>
                   <TableCell style={{ border: '1px solid #ccc' }}>{item.address}</TableCell>
                   <TableCell style={{ border: '1px solid #ccc' }}>{item.comboPack}</TableCell>
+                  <TableCell style={{ border: '1px solid #ccc' }}>{item.fromWho}</TableCell>
                   <TableCell style={{ border: '1px solid #ccc' }}>{item.comboPrice}</TableCell>
                   <TableCell style={{ border: '1px solid #ccc' }}>{item.qty}</TableCell>
                   <TableCell style={{ border: '1px solid #ccc' }}>{item.deliveryCharges}</TableCell>
