@@ -213,7 +213,11 @@ const AllData = () => {
             <TableBody>
               {filteredData.map((item) => (
                 <TableRow key={item.id} style={{
-                  backgroundColor: item.pendingAmount > 0 ? '#f7ead7' : item.pendingAmount === 0 ? '#e6fae9' : 'transparent',
+                  backgroundColor: item.pendingAmount === 0 && item.deliveryStatus === 'Deliverd' ? '#e6fae9' : // Paid and delivered
+                                  item.deliveryStatus === 'Deliverd' && item.pendingAmount > 0 ? 'red' : // Delivered but not fully paid
+                                  item.pendingAmount > 0 ? '#f7ead7' : // Pending payment
+                                  item.deliveryStatus === 'Deliverd' ? 'blue' : // Delivered
+                                  'transparent', // Default
                   borderBottom: '1px solid #ccc',
                 }}>
                   <TableCell style={{ border: '1px solid #ccc' }}>{item.id}</TableCell>
