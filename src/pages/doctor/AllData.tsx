@@ -6,6 +6,8 @@ import { WhatsApp } from '@material-ui/icons';
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
 
+import { useConfirmationDialog } from '../../utils/useConfirmationDialog';
+import ConfirmationDialog from '../home/diloage/ConfirmationDialog';
 import useStyles from './AllDataStyles';
 
 export interface BillData {
@@ -16,7 +18,7 @@ export interface BillData {
   dateOfBirth: string;
   firstName: string;
   note: string;
-  fromWho:string;
+  fromWho: string;
   paidAmount: number;
   paymentMode: string;
   pendingAmount: number;
@@ -32,26 +34,25 @@ export interface BillData {
 
 const AllData = () => {
   const classes = useStyles();
+  const { dialogOpen, dialogProps, showDialog, handleConfirm, handleCancel } = useConfirmationDialog();
   const { enqueueSnackbar } = useSnackbar();
   const [data, setData] = useState<BillData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('https://gunjalpatilserver.onrender.com/data');
-        setData(response.data);
-        enqueueSnackbar('Data fetched successfully', { variant: 'success' });
-      } catch (error) {
-        enqueueSnackbar('Failed to fetch data', { variant: 'error' });
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
-  }, [enqueueSnackbar]);
-
+  }, []);
+  const fetchData = async () => {
+    try {
+      const response = await axios.get('https://gunjalpatilserver.onrender.com/data');
+      setData(response.data);
+    } catch (error) {
+      enqueueSnackbar('Failed to fetch data', { variant: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
   const filteredData = data.filter((item) => {
     const { phone, firstName, id } = item;
     const normalizedPhone = String(phone);
@@ -67,8 +68,65 @@ const AllData = () => {
     );
   });
 
+  const handlePayFullClick = async (item: BillData) => {
+    showDialog(
+      `Pay Full to ${item.firstName}?`,
+      'Are you sure you want to Pay Full Amount',
+      async () => {
+        // Create a new object with updated values
+        const updatedItem = {
+          ...item,
+          apiRequestFor: "update",
+          paidAmount: item.price, // Set paidAmount to total price
+          pendingAmount: 0, // Set pendingAmount to 0
+          status: 'Paid', // Set status to 'Paid'
+        };
 
+        try {
+          const response = await axios.post('https://gunjalpatilserver.onrender.com/data/', updatedItem, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          if (response.status === 200) {
+            fetchData();
+            enqueueSnackbar('Payment updated successfully', { variant: 'success' });
+          }
+        } catch (error) {
+          enqueueSnackbar('Failed to update payment', { variant: 'error' });
+        }
+      },
+    );
+  };
+  const handleDiliverFullClick = async (item: BillData) => {
+    showDialog(
+      `Deliver Combo to ${item.firstName}?`,
+      'Are you sure you want to Deliver Combo',
+      async () => {
+        // Create a new object with updated values
+        const updatedItem = {
+          ...item,
+          apiRequestFor: "update",
+          deliveryStatus: 'Deliverd', // Set status to 'Paid'
+        };
 
+        try {
+          const response = await axios.post('https://gunjalpatilserver.onrender.com/data/', updatedItem, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          if (response.status === 200) {
+            fetchData();
+            enqueueSnackbar('Payment updated successfully', { variant: 'success' });
+          }
+        } catch (error) {
+          enqueueSnackbar('Failed to update payment', { variant: 'error' });
+        }
+
+      },
+    );
+  };
   const handleWhatsAppClick = async (item: BillData) => {
     if (item.phone) {
       const formattedDateOfBirth = item.dateOfBirth ? new Date(item.dateOfBirth).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
@@ -131,7 +189,6 @@ const AllData = () => {
         https://www.instagram.com/gunjal_patil_bhel_and_misal/profilecard/?igsh=YzE3a2hqcGh4OW40
       `;
 
-
       const url = `https://api.whatsapp.com/send?phone=+91${item.phone}&text=${encodeURIComponent(message)}`;
       window.open(url, '_blank');
     }
@@ -174,11 +231,36 @@ const AllData = () => {
                   <TableCell style={{ border: '1px solid #ccc' }}>{item.paymentMode}</TableCell>
                   <TableCell style={{ border: '1px solid #ccc' }}>{item.branch}</TableCell>
                   <TableCell style={{ border: '1px solid #ccc' }}>{item.note}</TableCell>
-                  <TableCell style={{ border: '1px solid #ccc' }}>{item.status}</TableCell>
+                  <TableCell style={{ border: '1px solid #ccc' }}>
+                    {item.pendingAmount > 0 ? (
+                      <Button
+                        variant="contained"
+                        onClick={() => handlePayFullClick(item)}
+                        style={{ margin: '4px' }}
+                      >
+                        Pay Full
+                      </Button>
+                    ) : (
+                      <span>{item.status}</span> // Display status when no payment is pending
+                    )}
+                  </TableCell>
+
                   <TableCell style={{ border: '1px solid #ccc' }}>
                     {item.deliveryDate ? new Date(item.deliveryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}
                   </TableCell>
-                  <TableCell style={{ border: '1px solid #ccc' }}>{item.deliveryStatus}</TableCell>
+                  <TableCell style={{ border: '1px solid #ccc' }}>
+                    {item.deliveryStatus !== 'Deliverd' ? (
+                      <Button
+                        variant="contained"
+                        onClick={() => handleDiliverFullClick(item)}
+                        style={{ margin: '4px' }}
+                      >
+                        Deliver
+                      </Button>
+                    ) : (
+                      <span>{item.deliveryStatus}</span>
+                    )}
+                  </TableCell>
                   <TableCell style={{ border: '1px solid #ccc' }}>
                     <Button
                       variant="contained"
@@ -195,9 +277,19 @@ const AllData = () => {
           </Table>
         </TableContainer>
       )}
+      {
+        dialogProps && (
+          <ConfirmationDialog
+            open={dialogOpen}
+            title={dialogProps.title}
+            description={dialogProps.description}
+            onConfirm={handleConfirm}
+            onCancel={handleCancel}
+          />
+        )
+      }
     </div>
   );
 };
-
 
 export default AllData;
