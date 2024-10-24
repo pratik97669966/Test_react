@@ -88,7 +88,7 @@ const AddNewData = () => {
       comboPack,
       qty: quantity,
       price: price,
-      fromWho:fromWho,
+      fromWho: fromWho,
       comboPrice: comboPrice,
       paidAmount: parseFloat(paidAmount),
       pendingAmount,
@@ -96,7 +96,7 @@ const AddNewData = () => {
       note,
       deliveryCharges,
       deliveryDate: formattedDeliveryDate,
-      status: '',
+      status: pendingAmount <= 0 ? "Paid" : "",
     };
     try {
       await axios.post('https://gunjalpatilserver.onrender.com/data', payload, {
