@@ -185,8 +185,8 @@ const AllData = () => {
         आमच्याबद्दल अधिक जाणून घेण्यासाठी खालील लिंकवर क्लिक करून आमच्या व्हॉट्सऍप ग्रुपला जॉईन करा.
         https://chat.whatsapp.com/L52wkjvPjkMCNhGldT9Fdb
       
-        तसेच आमच्या इंस्टाग्राम पेजला फॉलो करा.
-        https://www.instagram.com/gunjal_patil_bhel_and_misal/profilecard/?igsh=YzE3a2hqcGh4OW40
+        आपल्या दिवाळी फराळाबद्दल प्रतिक्रिया देण्यासाठी हा फॉर्म भरा. आपली मते आमच्यासाठी महत्त्वाची आहेत!
+        https://forms.gle/x62GrwfK81aTZXv37
       `;
 
       const url = `https://api.whatsapp.com/send?phone=+91${item.phone}&text=${encodeURIComponent(message)}`;
