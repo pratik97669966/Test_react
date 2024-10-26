@@ -195,7 +195,7 @@ const AllData = () => {
   };
 
   return (
-    <div style={{ width: '-webkit-fill-available', padding: '10px' }}>
+    <div style={{ width: '-webkit-fill-available', padding: '10px', height: "100vh", overflow: 'auto' }}>
       <TextField
         className={classes.searchField}
         label="Search by Name, Mobile Number, or ID"
@@ -208,16 +208,17 @@ const AllData = () => {
       {loading ? (
         <Typography variant="h6">Loading...</Typography>
       ) : (
-        <TableContainer style={{ maxWidth: '100%' }} component={Paper}>
+        <TableContainer style={{ maxHeight: '90vh', overflow: 'auto' }} component={Paper}>
           <Table style={{ width: '100%' }}>
             <TableBody>
               {filteredData.map((item) => (
                 <TableRow key={item.id} style={{
-                  backgroundColor: item.pendingAmount === 0 && item.deliveryStatus === 'Deliverd' ? '#e6fae9' : // Paid and delivered
-                                  item.deliveryStatus === 'Deliverd' && item.pendingAmount > 0 ? 'red' : // Delivered but not fully paid
-                                  item.pendingAmount > 0 ? '#f7ead7' : // Pending payment
-                                  item.deliveryStatus === 'Deliverd' ? 'blue' : // Delivered
-                                  'transparent', // Default
+                  backgroundColor: item.pendingAmount === 0 && item.deliveryStatus === 'Deliverd' ? '#14b53f' : // Paid and delivered
+                    item.deliveryStatus === 'Deliverd' && item.pendingAmount > 0 ? 'red' :
+                      item.deliveryStatus !== 'Deliverd' && item.pendingAmount === 0 ? '#e6fae9' : // Delivered but not fully paid
+                        item.pendingAmount > 0 ? '#f7ead7' : // Pending payment
+                          item.deliveryStatus === 'Deliverd' ? 'blue' : // Delivered
+                            'transparent', // Default
                   borderBottom: '1px solid #ccc',
                 }}>
                   <TableCell style={{ border: '1px solid #ccc' }}>{item.id}</TableCell>
