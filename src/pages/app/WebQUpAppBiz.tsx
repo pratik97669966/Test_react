@@ -11,7 +11,6 @@ import MainContainer from '../mainContainer/MainContainer';
 import '../../utils/DropConsole';
 import './WebQUpAppBiz.css';
 
-
 function WebQUpAppBiz() {
   return (
     <div id="WebQUpAppBizId" className="App">

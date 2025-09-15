@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, InputAdornment, InputLabel, MenuItem, Paper, Select, TextField, TextFieldProps, Typography } from '@material-ui/core';
+import { Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, InputAdornment, InputLabel, MenuItem, Select, TextField, TextFieldProps, Typography } from '@material-ui/core';
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
 import { DatePicker } from '@material-ui/pickers';
 import axios from 'axios';
@@ -8,7 +8,6 @@ import { useHistory } from 'react-router-dom';
 
 import ic_callender from '../../assets/Icons/ic_callender.svg';
 import logo from '../../assets/Icons/logo.png';
-import { addData } from '../../services/api/DoctorAPI';
 import { getDefaultSnack } from '../../utils/SnackbarHelper';
 import { BillData } from './AllData';
 import useStyles from './SignInStyles';
@@ -37,13 +36,13 @@ const AddNewData = () => {
   const [selectedItem, setSelectedItem] = useState<BillData>();
 
   useEffect(() => {
-    let basePrice = 2999;
+    let basePrice = 3100;
     switch (comboPack) {
       case 'Double':
-        basePrice = 5900;
+        basePrice = 6100;
         break;
       case 'Triple':
-        basePrice = 8800;
+        basePrice = 9100;
         break;
     }
     setComboPrice(basePrice);
@@ -96,7 +95,7 @@ const AddNewData = () => {
       note,
       deliveryCharges,
       deliveryDate: formattedDeliveryDate,
-      status: pendingAmount <= 0 ? "Paid" : "",
+      status: pendingAmount <= 0 ? 'Paid' : '',
     };
     try {
       await axios.post('https://gunjalpatilserver.onrender.com/data', payload, {

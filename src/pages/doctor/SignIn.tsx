@@ -56,8 +56,8 @@ const SignIn = () => {
       phone: mobileNumber,
       firtName: firstName,
       lastName: lastName,
-      dateOfBirth: formattedDob
-    }
+      dateOfBirth: formattedDob,
+    };
     localStorage.setItem('firstName', firstName);
     localStorage.setItem('lastName', lastName);
     localStorage.setItem('mobileNumber', mobileNumber);

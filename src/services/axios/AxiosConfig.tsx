@@ -1,7 +1,6 @@
 // axios/AxiosConfig.ts
 import axios from 'axios';
 
-
 // Create Axios instance
 const instance = axios.create({
   baseURL: process.env.REACT_APP_BASE_URL,
@@ -11,7 +10,7 @@ const instance = axios.create({
 instance.interceptors.request.use(
   async (config) => {
     if (!config.headers.Authorization) {
-      const tokenFromStorage = localStorage.getItem("token");
+      const tokenFromStorage = localStorage.getItem('token');
       if (tokenFromStorage) {
         config.headers.Authorization = 'bearer ' + tokenFromStorage;
       }
@@ -61,7 +60,7 @@ instance.interceptors.response.use(
 
 async function refreshToken() {
   const bodyFormData = new FormData();
-  const refresh_token = localStorage.getItem("refresh_token") + '';
+  const refresh_token = localStorage.getItem('refresh_token') + '';
   bodyFormData.append('grant_type', 'refresh_token');
   bodyFormData.append('refresh_token', refresh_token);
 
@@ -70,11 +69,11 @@ async function refreshToken() {
       'Content-Type': 'multipart/form-data',
       'Authorization': 'Basic ' + btoa('qup-business:bus$6web$#'),
     },
-    withCredentials: true
+    withCredentials: true,
   });
 
   const newToken = response.data.access_token;
-  localStorage.setItem("token", newToken);
+  localStorage.setItem('token', newToken);
   refreshQueue.forEach((resolve) => resolve(newToken));
   refreshQueue = [];
 

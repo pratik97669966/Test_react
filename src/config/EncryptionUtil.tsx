@@ -2,7 +2,7 @@
 import CryptoJS from 'crypto-js';
 
 // Load the secret key from environment variables
-const SECRET_KEY = "data=" + process.env.REACT_APP_SECRET_KEY;
+const SECRET_KEY = 'data=' + process.env.REACT_APP_SECRET_KEY;
 
 class EncryptionUtil {
   static encryptData(data: string): string {

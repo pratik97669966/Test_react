@@ -118,9 +118,9 @@ const QupStepperOption = (props: QupStepperProps) => {
     <Stepper classes={{
       root: classes.stepperRoot,
     }}
-      activeStep={props.currentStep}
-      orientation="vertical"
-      connector={<ColorlibConnector></ColorlibConnector>}
+    activeStep={props.currentStep}
+    orientation="vertical"
+    connector={<ColorlibConnector></ColorlibConnector>}
     >
       {props.options.map((option, index) => (
         <Step key={option.title} expanded={props.currentStep === index} onClick={(e) => { handleSelection(option, index); }}>

@@ -4,7 +4,7 @@ interface Link {
     templated: boolean;
   }
   
- export interface UserServiceLocation {
+export interface UserServiceLocation {
     address: string;
     city: string;
     country: string;
