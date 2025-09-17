@@ -52,46 +52,53 @@ export const generateInvoicePDF = (item: BillData): jsPDF => {
     );
 
     // -------- ITEMS TABLE --------
+    const tableBody: any[] = [
+        [
+            item.comboPack || 'Product',
+            `${item.qty || 0} Box`,
+            item.comboPrice?.toFixed(2) || "0.00",
+            item.price.toFixed(2),
+        ],
+    ];
+
+    // Add delivery charges row if > 0
+    if (item.deliveryCharges && item.deliveryCharges > 0) {
+        tableBody.push([
+            'Delivery Charges',
+            '-',
+            '-',
+            item.deliveryCharges.toFixed(2),
+        ]);
+    }
+
     const tableOptions: UserOptions = {
         startY: 95,
-        head: [['SR', 'Name', 'Qty', 'Price', 'Amount']],
-        body: [
-            [
-                '1',
-                item.comboPack || 'Product',
-                `${item.qty} Box`,
-                item.comboPrice.toFixed(2),
-                item.price.toFixed(2),
-            ],
-        ],
+        head: [['Name', 'Qty', 'Price', 'Amount']],
+        body: tableBody,
         styles: { fontSize: 10, valign: 'middle' },
-
-        // 🔹 Head (title row) alignment
         headStyles: { fillColor: [230, 230, 230], textColor: 0, halign: 'center' },
-
-        // 🔹 Body (values) alignment
         columnStyles: {
-            0: { halign: 'center' }, // SR
-            1: { halign: 'left' },   // Name
-            2: { halign: 'right' },  // Qty
-            3: { halign: 'right' },  // Price
-            4: { halign: 'right' },  // Amount
+            0: { halign: 'left' },
+            1: { halign: 'right' },
+            2: { halign: 'right' },
+            3: { halign: 'right' },
         },
     };
     autoTable(doc, tableOptions);
-
 
     // -------- TOTALS SECTION --------
     const finalY =
         (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable
             ?.finalY ?? 120;
 
+    const grandTotal = item.price + (item.deliveryCharges || 0);
+
     const totals = [
-        ['Total', item.price.toFixed(3)],
-        ['Received', item.paidAmount.toFixed(3)],
-        ['Balance', item.pendingAmount.toFixed(3)],
-        // ['Previous Bal.', '4000.000'], // 🔹 Replace with dynamic if available
-        ['Current Bal.', (item.pendingAmount + 4000).toFixed(3)],
+        ['Total', grandTotal.toFixed(2)],
+        ['Received', item.paidAmount.toFixed(2)],
+        ['Balance', item.pendingAmount.toFixed(2)],
+        // ['Previous Bal.', '4000.00'], // Optional if you maintain previous balance
+        ['Current Bal.', (item.pendingAmount + 4000).toFixed(2)],
     ];
 
     autoTable(doc, {
@@ -109,7 +116,7 @@ export const generateInvoicePDF = (item: BillData): jsPDF => {
     const pageHeight = doc.internal.pageSize.height;
     doc.setFontSize(11).setFont('helvetica', 'normal');
     doc.text(
-        item.note,
+        item.note || '',
         105,
         pageHeight - 10,
         { align: 'center' },

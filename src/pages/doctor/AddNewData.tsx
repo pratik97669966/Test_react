@@ -1,8 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, InputAdornment, InputLabel, MenuItem, Select, TextField, TextFieldProps, Typography } from '@material-ui/core';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Backdrop,
+  Button,
+  CircularProgress,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  makeStyles,
+  MenuItem,
+  Select,
+  TextField,
+  TextFieldProps,
+  Typography,
+} from '@material-ui/core';
+import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
+import WhatsAppIcon from '@material-ui/icons/WhatsApp';
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab';
 import { DatePicker } from '@material-ui/pickers';
 import axios from 'axios';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { useSnackbar } from 'notistack';
 import { useHistory } from 'react-router-dom';
 
@@ -10,12 +33,24 @@ import ic_callender from '../../assets/Icons/ic_callender.svg';
 import logo from '../../assets/Icons/logo.png';
 import { getDefaultSnack } from '../../utils/SnackbarHelper';
 import { BillData } from './AllData';
+import { generateInvoicePDF } from './invoiceUtils';
 import useStyles from './SignInStyles';
 
+const useLoaderStyles = makeStyles((theme) => ({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  },
+}));
 const AddNewData = () => {
   const history = useHistory();
-  const { successSnack, failSnack, warningSnack } = getDefaultSnack(useSnackbar().enqueueSnackbar);
+  const { successSnack, failSnack } = getDefaultSnack(
+    useSnackbar().enqueueSnackbar,
+  );
   const classes = useStyles();
+  const loaderClasses = useLoaderStyles();
+
+  // -------- Form State --------
   const [mobileNumber, setMobileNumber] = useState('');
   const [firstName, setFirstName] = useState('');
   const [dob, setDob] = useState<Date | null>(new Date());
@@ -31,10 +66,16 @@ const AddNewData = () => {
   const [paidAmount, setPaidAmount] = useState('');
   const [paymentMode, setPaymentMode] = useState('Online');
   const [note, setNote] = useState('');
-  const numbers = Array.from({ length: 100 }, (_, i) => i + 1);
+
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState<BillData>();
+  const [loading, setLoading] = useState(false);
 
+  const pdfRef = useRef<HTMLDivElement>(null);
+
+  const numbers = Array.from({ length: 100 }, (_, i) => i + 1);
+
+  // -------- Price Calculation --------
   useEffect(() => {
     let basePrice = 3100;
     switch (comboPack) {
@@ -55,142 +96,185 @@ const AddNewData = () => {
 
   const onMobileNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const regex = /^[0-9]*$/;
-    if (!regex.test(event.currentTarget.value)) {
-      return;
-    }
+    if (!regex.test(event.currentTarget.value)) return;
     const mobileNo = event.currentTarget.value.replace(/\D/g, '').slice(0, 10);
     setMobileNumber(mobileNo);
   };
 
-  const handleDateChange = (date: Date | null) => {
-    setDob(date);
-  };
-  const handleDeliveryDate = (date: Date | null) => {
-    setDeliveryDate(date);
-  };
-  const openAllDataList = () => {
-    history.push('/all-data');
-  };
+  const handleDateChange = (date: Date | null) => setDob(date);
+  const handleDeliveryDate = (date: Date | null) => setDeliveryDate(date);
+
+  const openAllDataList = () => history.push('/all-data');
+
+  // -------- PDF Utilities --------
+  const createPdfBlob = useCallback((item: BillData) => {
+    try {
+      const pdf = generateInvoicePDF(item);
+      return pdf.output('blob');
+    } catch (err) {
+      console.error('pdf blob error', err);
+      return null;
+    }
+  }, []);
+
+  const sharePdf = useCallback(async (item: BillData) => {
+    const blob = createPdfBlob(item);
+    if (!blob) {
+      failSnack('Failed to prepare invoice');
+      return;
+    }
+    const file = new File([blob], `Invoice_${item.id}.pdf`, { type: 'application/pdf' });
+    try {
+      if ((navigator as any).canShare && (navigator as any).canShare({ files: [file] })) {
+        await (navigator as any).share({
+          title: 'Invoice',
+          text: 'कृपया आपले बिल तपासा.',
+          files: [file],
+        });
+      } else {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      }
+    } catch (err) {
+      console.error('Share fallback', err);
+      failSnack('Share failed');
+    }
+  }, [createPdfBlob, failSnack]);
+
+  // -------- Save Handler --------
   const handleSave = async () => {
     if (mobileNumber.length !== 10) {
       failSnack('Enter 10 digit mobile number');
       return;
     }
+
     const formattedDob = dob ? dob : '';
     const formattedDeliveryDate = deliveryDate ? deliveryDate : '';
     const payload = {
       phone: mobileNumber,
-      firstName: firstName,
+      firstName,
       dateOfBirth: formattedDob,
       address,
       branch,
       comboPack,
       qty: quantity,
-      price: price,
-      fromWho: fromWho,
-      comboPrice: comboPrice,
+      price,
+      fromWho,
+      comboPrice,
       paidAmount: parseFloat(paidAmount),
       pendingAmount,
       paymentMode,
       note,
-      deliveryCharges,
+      deliveryCharges: parseFloat(deliveryCharges || '0'),
       deliveryDate: formattedDeliveryDate,
       status: pendingAmount <= 0 ? 'Paid' : '',
     };
+
+    setLoading(true);
     try {
-      await axios.post('https://gunjalpatilserver.onrender.com/data', payload, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }).then((response) => {
-        if (response.status === 200) {
-          setSelectedItem(response.data);
-          setFirstName('');
-          setMobileNumber('');
-          setAddress('');
-          setDeliveryDate(null);
-          setDeliveryCharges('');
-          setPaidAmount('');
-          setNote('');
-          setQuantity(1);
-          setDob(new Date());
-          successSnack('Added successfully');
-          setOpenDialog(true);
-        } else {
-          failSnack('Failed to add data');
-        }
-      }).catch((error) => {
-        if (error.response) {
-          failSnack('Failed to add data');
-        } else {
-          failSnack('Failed to add data due to network error');
-        }
-      });
+      const response = await axios.post(
+        'https://gunjalpatilserver.onrender.com/data',
+        payload,
+        { headers: { 'Content-Type': 'application/json' } },
+      );
+
+      if (response.status === 200) {
+        setSelectedItem(response.data);
+        // Reset form
+        setFirstName('');
+        setMobileNumber('');
+        setAddress('');
+        setDeliveryDate(null);
+        setDeliveryCharges('');
+        setPaidAmount('');
+        setNote('');
+        setQuantity(1);
+        setDob(new Date());
+        successSnack('Added successfully');
+        setOpenDialog(true);
+      } else {
+        failSnack('Failed to add data');
+      }
     } catch (error) {
+      console.error(error);
       failSnack('An unexpected error occurred');
     }
+    setLoading(false);
   };
-  const handleDialogClose = (p0: boolean) => {
-    setOpenDialog(false);
+
+  // -------- WhatsApp Message --------
+  const handleWhatsApp = useCallback(() => {
+    if (!selectedItem) return;
     const item = selectedItem;
-    if (item && p0) {
-      const formattedDateOfBirth = item.dateOfBirth ? new Date(item.dateOfBirth).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
-      const formattedDeliveryDate = item.deliveryDate ? new Date(item.deliveryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
 
-      const message = `
-  *गुंजाळ पाटील भेळ व मिसळ*
-    
-  पत्ता:
-  58/2, गुंजाळ पाटील कॉर्नर,
-  जाखुरी, ता. संगमनेर, जि. अहिल्यानगर. 422605
-  संपर्क क्रमांक: 
-  8888147262 , 9923469913
-    
-  *प्रिय सर/मॅडम*,
-  आपल्या दिवाळी फराळ बुकिंगबद्दल धन्यवाद! 🙏 
-  कृपया आपल्या ऑर्डरचे बिल तपासा:
-    
-  ${formattedDateOfBirth ? 'तारीख: ' + formattedDateOfBirth : ''}
-  बिल क्रमांक: ${item.id}
-  *ग्राहकाचे नाव: ${item.firstName}*
-  संपर्क क्रमांक: ${item.phone}
-    
-  ऑर्डर तपशील:
-    
-  ${item.comboPack} Combo Pack
-  नग: ${item.qty}
-  किंमत: ${item.comboPrice}/- रुपये
-  ${parseFloat(item.deliveryCharges) > 0 ? 'डिलिव्हरी चार्जेस: ' + item.deliveryCharges + '/- रुपये' : ''} 
-    
-  *एकूण रक्कम: ${item.price}/- रुपये*
-    
-  जमा रक्कम: ${item.paidAmount}/- रुपये
-  
-  *शिल्लक रक्कम: ${item.pendingAmount}/- रुपये*
-    
-  अभिनंदन ${item.firstName} आपल्या दिवाळीच्या फराळाची बुकिंग झालेली आहे.
-  ${formattedDeliveryDate ? 'आपला कोम्बो पॅक घेण्याची अंदाजे तारीख: ' + formattedDeliveryDate : ''}
-  
-  आमच्या सेवांचा लाभ घेतल्याबद्दल धन्यवाद..! 🙏 
-    
-  🪔🪔🪔 आपणास आणि आपल्या संपूर्ण परिवाराला दिवाळीच्या खूप खूप शुभेच्छा! 🪔🪔🪔
-    
-  आदरपूर्वक,
-  *गुंजाळ पाटील भेळ व मिसळ*
-  
-  आमच्याबद्दल अधिक जाणून घेण्यासाठी खालील लिंकवर क्लिक करून आमच्या व्हॉट्सऍप ग्रुपला जॉईन करा.
-  https://chat.whatsapp.com/L52wkjvPjkMCNhGldT9Fdb
+    const formattedDateOfBirth = item.dateOfBirth
+      ? new Date(item.dateOfBirth).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      })
+      : '';
+    const formattedDeliveryDate = item.deliveryDate
+      ? new Date(item.deliveryDate).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      })
+      : '';
+    const grandTotal = item.price + (item.deliveryCharges || 0);
 
-  तसेच आमच्या इंस्टाग्राम पेजला फॉलो करा.
-  https://www.instagram.com/gunjal_patil_bhel_and_misal/profilecard/?igsh=YzE3a2hqcGh4OW40
+    const message = `
+*गुंजाळ पाटील भेळ व मिसळ*
+    
+पत्ता:
+58/2, गुंजाळ पाटील कॉर्नर,
+जाखुरी, ता. संगमनेर, जि. अहिल्यानगर. 422605
+संपर्क क्रमांक: 
+8888147262 , 9923469913
+    
+*प्रिय सर/मॅडम*,
+आपल्या दिवाळी फराळ बुकिंगबद्दल धन्यवाद! 🙏 
+कृपया आपल्या ऑर्डरचे बिल तपासा:
+    
+${formattedDateOfBirth ? 'तारीख: ' + formattedDateOfBirth : ''}
+बिल क्रमांक: ${item.id}
+*ग्राहकाचे नाव: ${item.firstName}*
+संपर्क क्रमांक: ${item.phone}
+    
+ऑर्डर तपशील:
+    
+${item.comboPack} Combo Pack
+नग: ${item.qty}
+किंमत: ${item.comboPrice?.toFixed(2)}/- रुपये
+${item.deliveryCharges && item.deliveryCharges > 0
+    ? `डिलिव्हरी चार्जेस: ${item.deliveryCharges.toFixed(2)}/- रुपये`
+    : ''}
+
+*एकूण रक्कम (Delivery सहित): ${grandTotal.toFixed(2)}/- रुपये*
+    
+जमा रक्कम: ${item.paidAmount.toFixed(2)}/- रुपये
+  
+*शिल्लक रक्कम: ${item.pendingAmount.toFixed(2)}/- रुपये*
+    
+अभिनंदन ${item.firstName} आपल्या दिवाळीच्या फराळाची बुकिंग झालेली आहे.
+${formattedDeliveryDate ? 'आपला कोम्बो पॅक घेण्याची अंदाजे तारीख: ' + formattedDeliveryDate : ''}
+  
+आमच्या सेवांचा लाभ घेतल्याबद्दल धन्यवाद..! 🙏 
+🪔🪔🪔 आपणास आणि आपल्या संपूर्ण परिवाराला दिवाळीच्या खूप खूप शुभेच्छा! 🪔🪔🪔
+    
+आदरपूर्वक,
+*गुंजाळ पाटील भेळ व मिसळ*
 `;
 
-      const url = `https://api.whatsapp.com/send?phone=+91${item.phone}&text=${encodeURIComponent(message)}`;
-      window.open(url, '_blank');
-    }
-  };
+    const url = `https://api.whatsapp.com/send?phone=+91${item.phone}&text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  }, [selectedItem]);
+
   return (
     <div className={classes.centerScreen}>
+      <Backdrop className={loaderClasses.backdrop} open={loading}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <Container className={classes.container}>
         <div>
           <Grid
@@ -416,12 +500,31 @@ const AddNewData = () => {
                 />
                 <Grid container spacing={3} style={{ margin: '10px 0px' }}>
                   <Grid item xs={6}>
-                    <Button fullWidth variant="contained" color="primary" disabled={!firstName || !mobileNumber || !dob || !address || !branch || !comboPack || !paidAmount} onClick={handleSave}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      color="primary"
+                      disabled={
+                        !firstName ||
+                        !mobileNumber ||
+                        !dob ||
+                        !address ||
+                        !branch ||
+                        !comboPack ||
+                        !paidAmount
+                      }
+                      onClick={handleSave}
+                    >
                       Save
                     </Button>
                   </Grid>
                   <Grid item xs={6}>
-                    <Button fullWidth variant="contained" color="secondary" onClick={openAllDataList}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      color="secondary"
+                      onClick={openAllDataList}
+                    >
                       View All Data
                     </Button>
                   </Grid>
@@ -430,22 +533,58 @@ const AddNewData = () => {
             </Grid>
           </Grid>
         </div>
+
       </Container>
-      {/* Dialog for confirmation */}
-      <Dialog open={openDialog} onClose={() => handleDialogClose(false)}>
+
+      {/* Hidden PDF Template */}
+      <div style={{ display: 'none' }}>
+        <div ref={pdfRef}>
+          <h2>Invoice</h2>
+          <p>Name: {selectedItem?.firstName}</p>
+          <p>Phone: {selectedItem?.phone}</p>
+          <p>Combo: {selectedItem?.comboPack}</p>
+          <p>Qty: {selectedItem?.qty}</p>
+          <p>Total: {selectedItem?.price}</p>
+          <p>Paid: {selectedItem?.paidAmount}</p>
+          <p>Pending: {selectedItem?.pendingAmount}</p>
+        </div>
+      </div>
+
+      {/* Dialog */}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>जतन झाले</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            व्हॉट्सऍप
-            व्हा उघडायचे आहे का?
-          </DialogContentText>
+          {loading ? (
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <CircularProgress />
+            </div>
+          ) : (
+            <>
+              <Typography>तुम्हाला पुढे काय करायचे आहे?</Typography>
+              <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+                <IconButton
+                  color="primary"
+                  onClick={handleWhatsApp}
+                  title="Send WhatsApp Message"
+                >
+                  <WhatsAppIcon />
+                </IconButton>
+                {selectedItem && (
+                  <IconButton
+                    
+                    onClick={() => sharePdf(selectedItem)}
+                    title="Share PDF"
+                  >
+                    <PictureAsPdfIcon />
+                  </IconButton>
+                )}
+              </div>
+            </>
+          )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => handleDialogClose(false)} color="primary">
-            नाही
-          </Button>
-          <Button onClick={() => handleDialogClose(true)} color="primary">
-            होय
+          <Button onClick={() => setOpenDialog(false)} color="primary">
+            Close
           </Button>
         </DialogActions>
       </Dialog>
