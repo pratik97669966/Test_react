@@ -317,25 +317,29 @@ const AllData: React.FC = () => {
   const shareWhatsapp = useCallback((item: BillData) => {
     if (!item) return;
 
-    const raw = String(item.phone ?? '').replace(/\D/g, '');
-    if (!raw) {
+    // Clean and format phone number
+    const rawPhone = String(item.phone ?? '').replace(/\D/g, '');
+    if (!rawPhone) {
       enqueueSnackbar('Invalid phone number', { variant: 'warning' });
       return;
     }
-    const phoneWithCode = raw.length <= 10 ? `91${raw}` : raw;
+    const phoneWithCode = rawPhone.length <= 10 ? `91${rawPhone}` : rawPhone;
 
-    const formattedDateOfBirth = item.dateOfBirth
-      ? new Date(item.dateOfBirth).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-      : '';
-    const formattedDeliveryDate = item.deliveryDate
-      ? new Date(item.deliveryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-      : '';
+    // Format dates
+    const formatDate = (date?: string | Date) =>
+      date ? new Date(date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
 
-    const delivery = item.deliveryCharges ? Number(item.deliveryCharges) : 0;
-    const price = Number(item.price ?? 0);
-    const paid = Number(item.paidAmount ?? 0);
-    const pending = Number(item.pendingAmount ?? 0);
+    const formattedDateOfBirth = formatDate(item.dateOfBirth);
+    const formattedDeliveryDate = formatDate(item.deliveryDate);
 
+    // Convert numbers safely
+    const comboPrice = Number(item.comboPrice ?? 0);
+    const deliveryCharges = Number(item.deliveryCharges ?? 0);
+    const totalPrice = Number(item.price ?? 0) + deliveryCharges;
+    const paidAmount = Number(item.paidAmount ?? 0);
+    const pendingAmount = Number(item.pendingAmount ?? 0);
+
+    // Construct message
     const message = `
 *गुंजाळ पाटील भेळ व मिसळ*
 
@@ -349,26 +353,23 @@ const AllData: React.FC = () => {
 आपल्या दिवाळी फराळ बुकिंगबद्दल धन्यवाद! 🙏 
 कृपया आपल्या ऑर्डरचे बिल तपासा:
 
-${formattedDateOfBirth ? 'तारीख: ' + formattedDateOfBirth : ''}
+${formattedDateOfBirth ? `तारीख: ${formattedDateOfBirth}` : ''}
 बिल क्रमांक: ${item.id}
 *ग्राहकाचे नाव: ${item.firstName}*
 संपर्क क्रमांक: ${item.phone}
 
 ऑर्डर तपशील:
-
 ${item.comboPack} Combo Pack
 नग: ${item.qty}
-किंमत: ₹${item.comboPrice?.toFixed(2) ?? '0'}
-${delivery > 0 ? 'डिलिव्हरी चार्जेस: ₹' + delivery.toFixed(2) : ''}
+किंमत: ₹${comboPrice.toFixed(2)}
+${deliveryCharges > 0 ? `डिलिव्हरी चार्जेस: ₹${deliveryCharges.toFixed(2)}` : ''}
 
-*एकूण रक्कम: ₹${(price + delivery).toFixed(2)}*
-
-जमा रक्कम: ₹${paid.toFixed(2)}
-
-*शिल्लक रक्कम: ₹${pending.toFixed(2)}*
+*एकूण रक्कम: ₹${totalPrice.toFixed(2)}*
+जमा रक्कम: ₹${paidAmount.toFixed(2)}
+*शिल्लक रक्कम: ₹${pendingAmount.toFixed(2)}*
 
 अभिनंदन ${item.firstName} आपल्या दिवाळीच्या फराळाची बुकिंग झालेली आहे.
-${formattedDeliveryDate ? 'आपला कोम्बो पॅक घेण्याची अंदाजे तारीख: ' + formattedDeliveryDate : ''}
+${formattedDeliveryDate ? `आपला कोम्बो पॅक घेण्याची अंदाजे तारीख: ${formattedDeliveryDate}` : ''}
 
 आमच्या सेवांचा लाभ घेतल्याबद्दल धन्यवाद..! 🙏 
 
@@ -382,6 +383,7 @@ WhatsApp ग्रुप: https://chat.whatsapp.com/L52wkjvPjkMCNhGldT9Fdb
 Instagram: https://www.instagram.com/gunjal_patil_bhel_and_misal/profilecard/?igsh=YzE3a2hqcGh4OW40
 `;
 
+    // Open WhatsApp link
     const whatsappUrl = `https://api.whatsapp.com/send?phone=+${phoneWithCode}&text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   }, [enqueueSnackbar]);
