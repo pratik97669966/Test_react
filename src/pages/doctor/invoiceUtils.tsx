@@ -33,7 +33,6 @@ export const generateInvoicePDF = (item: BillData): jsPDF => {
     doc.text(`Phone: ${item.phone || '-'}`, 10, 84);
 
     // Invoice details on right
-    doc.setFont('helvetica', 'normal');
     doc.text(`Ref No: ${item.id}`, 190, 65, { align: 'right' });
     doc.text(
         `Date of Issue: ${new Date().toLocaleDateString('en-GB')}`,
@@ -52,23 +51,21 @@ export const generateInvoicePDF = (item: BillData): jsPDF => {
     );
 
     // -------- ITEMS TABLE --------
+    const productTotal = (item.comboPrice || 0) * (item.qty || 0);
+    const deliveryCharges = item.deliveryCharges || 0;
+    const grandTotal = productTotal + deliveryCharges;
+
     const tableBody: any[] = [
         [
             item.comboPack || 'Product',
             `${item.qty || 0} Box`,
-            item.comboPrice?.toFixed(2) || "0.00",
-            item.price.toFixed(2),
+            item.comboPrice?.toFixed(2) || '0.00',
+            productTotal.toFixed(2),
         ],
     ];
 
-    // Add delivery charges row if > 0
-    if (item.deliveryCharges && item.deliveryCharges > 0) {
-        tableBody.push([
-            'Delivery Charges',
-            '-',
-            '-',
-            item.deliveryCharges.toFixed(2),
-        ]);
+    if (deliveryCharges > 0) {
+        tableBody.push(['Delivery Charges', '-', '-', deliveryCharges.toFixed(2)]);
     }
 
     const tableOptions: UserOptions = {
@@ -91,14 +88,10 @@ export const generateInvoicePDF = (item: BillData): jsPDF => {
         (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable
             ?.finalY ?? 120;
 
-    const grandTotal = item.price + (item.deliveryCharges || 0);
-
     const totals = [
         ['Total', grandTotal.toFixed(2)],
         ['Received', item.paidAmount.toFixed(2)],
         ['Balance', item.pendingAmount.toFixed(2)],
-        // ['Previous Bal.', '4000.00'], // Optional if you maintain previous balance
-        ['Current Bal.', (item.pendingAmount + 4000).toFixed(2)],
     ];
 
     autoTable(doc, {
@@ -115,12 +108,7 @@ export const generateInvoicePDF = (item: BillData): jsPDF => {
     // -------- FOOTER --------
     const pageHeight = doc.internal.pageSize.height;
     doc.setFontSize(11).setFont('helvetica', 'normal');
-    doc.text(
-        item.note || '',
-        105,
-        pageHeight - 10,
-        { align: 'center' },
-    );
+    doc.text(item.note || '', 105, pageHeight - 10, { align: 'center' });
 
     return doc;
 };
