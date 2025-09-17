@@ -56,6 +56,7 @@ const AddNewData = () => {
   const [dob, setDob] = useState<Date | null>(new Date());
   const [deliveryDate, setDeliveryDate] = useState<Date | null>(null);
   const [deliveryCharges, setDeliveryCharges] = useState('');
+  const [discount, setDiscount] = useState('');
   const [address, setAddress] = useState('');
   const [branch, setBranch] = useState('Jakhuri');
   const [fromWho, setFromWho] = useState('Pradeep');
@@ -127,8 +128,8 @@ const AddNewData = () => {
     try {
       if ((navigator as any).canShare && (navigator as any).canShare({ files: [file] })) {
         await (navigator as any).share({
-          title: 'Invoice',
-          text: 'कृपया आपले बिल तपासा.',
+          title: '',
+          text: '',
           files: [file],
         });
       } else {
@@ -161,6 +162,7 @@ const AddNewData = () => {
       price,
       fromWho,
       comboPrice,
+      discount,
       paidAmount: parseFloat(paidAmount),
       pendingAmount,
       paymentMode,
@@ -187,6 +189,7 @@ const AddNewData = () => {
         setDeliveryDate(null);
         setDeliveryCharges('');
         setPaidAmount('');
+        setDiscount('');
         setNote('');
         setQuantity(1);
         setDob(new Date());
@@ -414,6 +417,17 @@ ${formattedDeliveryDate ? 'आपला कोम्बो पॅक घेण�
                   onChange={(e) => {
                     const value = e.target.value;
                     setDeliveryCharges(value);
+                  }}
+                  inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                />
+                <TextField
+                  className={classes.textField}
+                  label="Discount"
+                  variant="outlined"
+                  value={discount}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setDiscount(value);
                   }}
                   inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                 />

@@ -4,6 +4,7 @@ import {
   Backdrop,
   Button,
   Card,
+  CardActions,
   CardContent,
   Chip,
   CircularProgress,
@@ -11,6 +12,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   FormControl,
   Grid,
   IconButton,
@@ -44,6 +46,7 @@ export interface BillData {
   phone?: string;
   price: number;
   comboPrice?: number;
+  discount?: number;
   deliveryCharges?: number;
   qty?: number;
   status?: string;
@@ -445,119 +448,326 @@ Instagram: https://www.instagram.com/gunjal_patil_bhel_and_misal/profilecard/?ig
         ) : (
           <Grid container spacing={2} style={{ padding: '0 16px' }}>
             {filteredData.map((item) => (
-              <Grid item xs={12} md={6} key={item.id}>
-                <Card style={{ cursor: 'pointer' }} onClick={() => openDetails(item)}>
-                  <CardContent>
-                    <Grid container justifyContent="space-between" alignItems="center">
-                      <Typography variant="subtitle1" style={{ fontWeight: 600 }}>{item.firstName}</Typography>
-                      {/* status chip */}
-                      <Chip
-                        label={
-                          Number(item.pendingAmount) === 0 ? 'SALE : PAID' :
-                            Number(item.paidAmount) > 0 ? 'SALE : PARTIAL' : 'SALE : UNPAID'
-                        }
-                        style={{ backgroundColor: Number(item.pendingAmount) === 0 ? '#4caf50' : Number(item.paidAmount) > 0 ? '#03a9f4' : '#ff9800', color: '#fff' }}
-                      />
+              <Grid item xs={12} sm={6} md={6} key={item.id}>
+                <Card
+                  style={{
+                    cursor: 'pointer',
+                    borderRadius: 10,
+                    padding: 8,
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    borderLeft: `5px solid ${Number(item.pendingAmount) === 0
+                      ? '#4caf50'
+                      : Number(item.paidAmount) > 0
+                        ? '#ff9800'
+                        : '#f44336'
+                      }`
+                  }}
+                  onClick={() => openDetails(item)}
+                >
+                  <CardContent style={{ padding: '6px 8px', flexGrow: 1 }}>
+                    {/* Header */}
+                    <Grid container spacing={1} alignItems="center">
+                      <Grid item xs={12} sm={6}>
+                        <Typography variant="subtitle1" style={{ fontWeight: 600, fontSize: 14 }}>
+                          {item.firstName}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={6} sm={3}>
+                        <Typography variant="body2" color="textSecondary" style={{ fontSize: 12 }}>
+                          Bill no. - {item.id}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={6} sm={3} style={{ textAlign: 'right' }}>
+                        <Typography variant="body2" color="textSecondary" style={{ fontSize: 12 }}>
+                          {item.deliveryDate ? new Date(item.deliveryDate).toLocaleDateString('en-GB') : '-'}
+                        </Typography>
+                      </Grid>
                     </Grid>
 
-                    <Grid container spacing={1} style={{ marginTop: 8 }}>
-                      <Grid item xs={6}><Typography variant="body2">Total: {fmt(item.price)}</Typography></Grid>
-                      <Grid item xs={6}><Typography variant="body2" style={{ color: item.pendingAmount === 0 ? 'green' : 'inherit', fontWeight: item.pendingAmount === 0 ? 600 : 400 }}>Paid: {fmt(item.paidAmount)}</Typography></Grid>
-                      <Grid item xs={6}><Typography variant="body2">Balance: {fmt(item.pendingAmount)}</Typography></Grid>
-                      <Grid item xs={6}><Typography variant="body2">Delivery: {item.deliveryStatus ?? '-'}</Typography></Grid>
+                    <Divider style={{ margin: '6px 0' }} />
+
+                    {/* Contact & Branch */}
+                    <Grid container spacing={1}>
+                      {item.phone && (
+                        <Grid item xs={12} sm={4}>
+                          <Typography variant="body2" color="textSecondary" style={{ fontSize: 12 }} noWrap>
+                            📞 {item.phone}
+                          </Typography>
+                        </Grid>
+                      )}
+                      {item.address && (
+                        <Grid item xs={12} sm={5}>
+                          <Typography variant="body2" color="textSecondary" style={{ fontSize: 12 }} noWrap>
+                            🏠 {item.address}
+                          </Typography>
+                        </Grid>
+                      )}
+                      {item.branch && (
+                        <Grid item xs={12} sm={3}>
+                          <Typography variant="body2" color="textSecondary" style={{ fontSize: 12 }} noWrap>
+                            🏢 {item.branch}
+                          </Typography>
+                        </Grid>
+                      )}
                     </Grid>
 
-                    <Grid container justifyContent="flex-end" spacing={1} style={{ marginTop: 4 }} onClick={(e) => e.stopPropagation()}>
+                    <Divider style={{ margin: '6px 0' }} />
+
+                    {/* Payment Info */}
+                    <Grid container spacing={1} alignItems="center">
+                      <Grid item xs={4}>
+                        <Typography variant="body2" style={{ fontSize: 12 }}>
+                          Total: {fmt(item.price)}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Typography variant="body2" style={{ fontSize: 12 }}>
+                          Paid: {fmt(item.paidAmount)}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={4} style={{ textAlign: 'right' }}>
+                        <Typography variant="body2" style={{ fontSize: 12 }}>
+                          Balance: {fmt(item.pendingAmount)}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+
+                    {/* Status Chips */}
+                    {(Number(item.paidAmount) > 0 || Number(item.pendingAmount) > 0 || (item.discount && Number(item.discount) > 0) || (item.deliveryStatus && item.deliveryStatus.trim() !== '')) && (
+                      <Grid container spacing={1} alignItems="center" style={{ marginTop: 4 }}>
+                        {/* Payment Status */}
+                        {(Number(item.paidAmount) > 0 || Number(item.pendingAmount) > 0) && (
+                          <Grid item>
+                            <Chip
+                              label={
+                                Number(item.pendingAmount) === 0 && Number(item.paidAmount) > 0
+                                  ? 'Full Pay'
+                                  : Number(item.pendingAmount) > 0 && Number(item.paidAmount) > 0
+                                    ? 'Half Pay'
+                                    : undefined
+                              }
+                              style={{
+                                backgroundColor:
+                                  Number(item.pendingAmount) === 0 && Number(item.paidAmount) > 0
+                                    ? '#4caf50'
+                                    : Number(item.pendingAmount) > 0 && Number(item.paidAmount) > 0
+                                      ? '#ff9800'
+                                      : undefined,
+                                color: '#fff',
+                                fontWeight: 600,
+                                fontSize: 11,
+                                minWidth: 70,
+                                height: 22
+                              }}
+                            />
+                          </Grid>
+                        )}
+
+                        {/* Discount */}
+                        {item.discount && Number(item.discount) > 0 && (
+                          <Grid item>
+                            <Typography variant="body2" style={{ fontWeight: 600, fontSize: 12 }}>
+                              Discount: {fmt(Number(item.discount))}
+                            </Typography>
+                          </Grid>
+                        )}
+
+                        {/* Delivery Status */}
+                        {item.deliveryStatus && item.deliveryStatus.trim() !== '' && (
+                          <Grid item>
+                            <Chip
+                              label={item.deliveryStatus}
+                              style={{
+                                backgroundColor:
+                                  item.deliveryStatus === 'Deliverd'
+                                    ? '#4caf50'
+                                    : item.deliveryStatus === 'Out for Delivery'
+                                      ? '#ff9800'
+                                      : item.deliveryStatus === 'Cancelled'
+                                        ? '#f44336'
+                                        : '#9e9e9e',
+                                color: '#fff',
+                                fontWeight: 500,
+                                fontSize: 11,
+                                height: 22
+                              }}
+                            />
+                          </Grid>
+                        )}
+                      </Grid>
+                    )}
+
+                    {/* Product + Actions */}
+                    <Grid container alignItems="center" justifyContent="space-between" style={{ marginTop: 4 }}>
+                      <Grid item xs>
+                        <Typography variant="body2" style={{ fontSize: 12, whiteSpace: 'pre-wrap', fontWeight: 500 }} noWrap>
+                          {item.comboPack} {item.qty ? `(${item.qty})` : ''}
+                        </Typography>
+                      </Grid>
+
                       <Grid item>
                         <Tooltip title="Print">
-                          <IconButton aria-label="print" onClick={() => handlePrint(item)}><Print /></IconButton>
+                          <IconButton aria-label="print" size="small" onClick={() => handlePrint(item)}>
+                            <Print fontSize="small" />
+                          </IconButton>
                         </Tooltip>
-                      </Grid>
-                      <Grid item>
-                        <Tooltip title="Share or open PDF">
-                          <IconButton aria-label="share" onClick={() => shareOrOpen(item)}><Share /></IconButton>
+                        <Tooltip title="Share PDF">
+                          <IconButton aria-label="share" size="small" onClick={() => shareOrOpen(item)}>
+                            <Share fontSize="small" />
+                          </IconButton>
                         </Tooltip>
-                      </Grid>
-                      <Grid item>
+                        <Tooltip title="WhatsApp">
+                          <IconButton aria-label="whatsapp" size="small" onClick={() => shareWhatsapp(item)} style={{ color: 'green' }}>
+                            <WhatsApp fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                         <Tooltip title="Download PDF">
-                          <IconButton aria-label="download pdf" onClick={() => {
+                          <IconButton aria-label="download pdf" size="small" onClick={() => {
                             const pdf = generateInvoicePDF(item);
                             pdf.save?.(`invoice_${item.id}.pdf`);
-                          }}><PictureAsPdf /></IconButton>
-                        </Tooltip>
-                      </Grid>
-                      <Grid item>
-                        <Tooltip title="Send on WhatsApp">
-                          <IconButton aria-label="whatsapp" onClick={() => shareWhatsapp(item)}><WhatsApp style={{ color: 'green' }} /></IconButton>
+                          }}>
+                            <PictureAsPdf fontSize="small" />
+                          </IconButton>
                         </Tooltip>
                       </Grid>
                     </Grid>
                   </CardContent>
                 </Card>
               </Grid>
+
+
+
             ))}
           </Grid>
         )}
       </Grid>
 
-      {/* Details dialog */}
-      <Dialog open={Boolean(selectedItem)} onClose={() => setSelectedItem(null)} fullWidth maxWidth="sm">
+      {/* Details Dialog */}
+      <Dialog
+        open={Boolean(selectedItem)}
+        onClose={() => setSelectedItem(null)}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{
+          style: {
+            borderLeft: `5px solid ${selectedItem
+              ? Number(selectedItem.pendingAmount) === 0
+                ? '#4caf50'
+                : Number(selectedItem.paidAmount) > 0
+                  ? '#ff9800'
+                  : '#f44336'
+              : '#ccc'
+              }`
+          }
+        }}
+      >
         <DialogTitle>Booking Details</DialogTitle>
         <DialogContent dividers>
           {selectedItem && (
-            <>
-              <Grid container justifyContent="space-between" alignItems="center">
-                <Typography variant="subtitle1" gutterBottom>Customer: {selectedItem.firstName}</Typography>
-                <Chip label={selectedItem.status ?? '-'} />
+            <Grid container spacing={1}>
+
+              {/* Header: Customer + Status */}
+              <Grid item xs={12} container justifyContent="space-between" alignItems="center">
+                <Typography variant="subtitle1" style={{ fontWeight: 600 }}>{selectedItem.firstName}</Typography>
+                <Chip label={selectedItem.status ?? '-'} size="small" />
               </Grid>
 
-              <Typography variant="body2">Phone: {selectedItem.phone ?? '-'}</Typography>
-              <Typography variant="body2">Address: {selectedItem.address ?? '-'}</Typography>
-              <Typography variant="body2">Product: {selectedItem.comboPack ?? '-'}</Typography>
-              <Typography variant="body2">Qty: {selectedItem.qty ?? '-'}</Typography>
-              <Typography variant="body2">Total: {fmt(selectedItem.price)}</Typography>
-              <Typography variant="body2">Paid: {fmt(selectedItem.paidAmount)}</Typography>
-              <Typography variant="body2">Pending: {fmt(selectedItem.pendingAmount)}</Typography>
-              <Typography variant="body2">Payment Mode: {selectedItem.paymentMode ?? '-'}</Typography>
-              <Typography variant="body2">Delivery Date: {selectedItem.deliveryDate ? new Date(selectedItem.deliveryDate).toLocaleDateString('en-GB') : '-'}</Typography>
+              {/* Contact Info */}
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2">
+                  <b>Phone:</b>{' '}
+                  <a href={`tel:${selectedItem.phone}`} style={{ textDecoration: 'none', color: '#1976d2' }}>
+                    {selectedItem.phone ?? '-'}
+                  </a>
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2"><b>Address:</b> {selectedItem.address ?? '-'}</Typography>
+              </Grid>
 
-              <FormControl fullWidth style={{ marginTop: 16 }}>
-                <InputLabel>Delivery Status</InputLabel>
-                <Select value={deliveryStatus} onChange={(e) => setDeliveryStatus(e.target.value as string)}>
-                  <MenuItem value="Pending">Pending</MenuItem>
-                  <MenuItem value="Out for Delivery">Out for Delivery</MenuItem>
-                  <MenuItem value="Deliverd">Deliverd</MenuItem>
-                  <MenuItem value="Cancelled">Cancelled</MenuItem>
-                </Select>
-              </FormControl>
-            </>
+              {/* Product Info */}
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2"><b>Product:</b> {selectedItem.comboPack ?? '-'}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2"><b>Qty:</b> {selectedItem.qty ?? '-'}</Typography>
+              </Grid>
+
+              {/* Payment Info */}
+              <Grid item xs={12} sm={4}>
+                <Typography variant="body2"><b>Total:</b> {fmt(selectedItem.price)}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Typography variant="body2"><b>Paid:</b> {fmt(selectedItem.paidAmount)}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Typography variant="body2"><b>Pending:</b> {fmt(selectedItem.pendingAmount)}</Typography>
+              </Grid>
+
+              {/* Other Info */}
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2"><b>Payment Mode:</b> {selectedItem.paymentMode ?? '-'}</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body2"><b>Delivery Date:</b> {selectedItem.deliveryDate ? new Date(selectedItem.deliveryDate).toLocaleDateString('en-GB') : '-'}</Typography>
+              </Grid>
+
+              {/* Delivery Status Select */}
+              <Grid item xs={12} style={{ marginTop: 8 }}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Delivery Status</InputLabel>
+                  <Select
+                    value={deliveryStatus}
+                    onChange={(e) => setDeliveryStatus(e.target.value as string)}
+                  >
+                    <MenuItem value="Pending">Pending</MenuItem>
+                    <MenuItem value="Out for Delivery">Out for Delivery</MenuItem>
+                    <MenuItem value="Deliverd">Deliverd</MenuItem>
+                    <MenuItem value="Cancelled">Cancelled</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+            </Grid>
           )}
         </DialogContent>
         <DialogActions>
           {selectedItem && selectedItem.pendingAmount > 0 && (
-            <Button color="secondary" variant="contained" onClick={() => confirmFullPayment(selectedItem)}>Payment Full Receive</Button>
+            <Button color="secondary" variant="contained" onClick={() => confirmFullPayment(selectedItem)}>
+              Payment Full Receive
+            </Button>
           )}
           <Button onClick={() => setSelectedItem(null)}>Close</Button>
-          <Button color="primary" variant="contained" onClick={async () => {
-            if (selectedItem) {
-              await handleDeliveryUpdate(selectedItem, deliveryStatus);
-            }
-            setSelectedItem(null);
-          }}>Save</Button>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={async () => {
+              if (selectedItem) await handleDeliveryUpdate(selectedItem, deliveryStatus);
+              setSelectedItem(null);
+            }}
+          >
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Confirm Full Payment dialog */}
-      <Dialog open={Boolean(confirmFullPayFor)} onClose={() => setConfirmFullPayFor(null)}>
+      {/* Confirm Full Payment Dialog */}
+      <Dialog open={Boolean(confirmFullPayFor)} onClose={() => setConfirmFullPayFor(null)} fullWidth maxWidth="xs">
         <DialogTitle>Confirm Full Payment</DialogTitle>
-        <DialogContent>
-          <Typography>Mark payment as fully received for <b>{confirmFullPayFor?.firstName}</b> (ID: {confirmFullPayFor?.id})?</Typography>
+        <DialogContent dividers>
+          <Typography variant="body2">
+            Mark payment as fully received for <b>{confirmFullPayFor?.firstName}</b> (ID: {confirmFullPayFor?.id})?
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmFullPayFor(null)}>Cancel</Button>
           <Button color="secondary" variant="contained" onClick={handleDoFullPayment}>Yes, mark Paid</Button>
         </DialogActions>
       </Dialog>
+
     </div>
   );
 };
