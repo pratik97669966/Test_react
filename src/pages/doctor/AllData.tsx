@@ -132,8 +132,17 @@ const AllData: React.FC = () => {
       return { ...d, _deliveryCanonical: canonicalDelivery };
     });
   }, [data]);
+  // Helper: determine combo status
+  function getComboStatus(item: BillData): 'Single' | 'Double' | 'Triple' | undefined {
+    if (!item.comboPack) return undefined;
+    const normalized = item.comboPack.toLowerCase();
+    if (normalized.includes('single')) return 'Single';
+    if (normalized.includes('double')) return 'Double';
+    if (normalized.includes('triple')) return 'Triple';
+    return undefined;
+  }
 
-  // status counts (useMemo)
+  // Derived status counts
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {
       All: data.length,
@@ -144,26 +153,39 @@ const AllData: React.FC = () => {
       Pending: 0,
       Cancelled: 0,
       'Out for Delivery': 0,
+      Single: 0,
+      Double: 0,
+      Triple: 0,
     };
 
     data.forEach((item) => {
-      // payment based
-      if (Number(item.pendingAmount) === 0) counts.Paid++;
-      else if (Number(item.paidAmount) > 0 && Number(item.pendingAmount) > 0) counts.Partial++;
-      else if (Number(item.paidAmount) === 0) counts.Unpaid++;
+      // --- Payment-based counts ---
+      const paid = Number(item.paidAmount) || 0;
+      const pending = Number(item.pendingAmount) || 0;
 
-      // delivery-based (use canonical)
-      const ds = STATUS_CANON[normalizeStatus(item.deliveryStatus) as keyof typeof STATUS_CANON] ?? item.deliveryStatus;
-      if (!ds) return;
-      if (ds === 'Delivered') counts.Delivered++;
-      else if (ds === 'Pending') counts.Pending++;
-      else if (ds === 'Cancelled') counts.Cancelled++;
-      else if (ds === 'Out for Delivery') counts['Out for Delivery']++;
+      if (pending === 0 && paid > 0) counts.Paid++;
+      else if (pending > 0 && paid > 0) counts.Partial++;
+      else if (paid === 0) counts.Unpaid++;
+
+      // --- Delivery-based counts ---
+      const normalizedStatus = normalizeStatus(item.deliveryStatus);
+      const canonicalStatus = STATUS_CANON[normalizedStatus as keyof typeof STATUS_CANON] ?? '';
+
+      if (canonicalStatus === 'Delivered') counts.Delivered++;
+      else if (canonicalStatus === 'Pending') counts.Pending++;
+      else if (canonicalStatus === 'Cancelled') counts.Cancelled++;
+      else if (canonicalStatus === 'Out for Delivery') counts['Out for Delivery']++;
+
+      // --- Combo-based counts ---
+      const comboStatus = getComboStatus(item);
+      if (comboStatus) counts[comboStatus]++;
     });
 
-    counts.All = data.length;
+    counts.All = data.length; // total bookings
     return counts;
   }, [data]);
+
+
 
   // debounced search state (simple, 250ms)
   const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
@@ -184,13 +206,23 @@ const AllData: React.FC = () => {
       // status check
       if (statusFilter === 'All' || !statusFilter) return matchesSearch;
 
+      // Payment-based
       if (statusFilter === 'Paid') return Number(item.pendingAmount) === 0;
       if (statusFilter === 'Partial') return Number(item.pendingAmount) > 0 && Number(item.paidAmount) > 0;
       if (statusFilter === 'Unpaid') return Number(item.paidAmount) === 0;
+
+      // Delivery-based
       if (statusFilter === 'Delivered') return normalizeStatus(item.deliveryStatus) === 'deliverd' || normalizeStatus(item.deliveryStatus) === 'delivered';
       if (statusFilter === 'Pending') return normalizeStatus(item.deliveryStatus) === 'pending';
       if (statusFilter === 'Cancelled') return normalizeStatus(item.deliveryStatus) === 'cancelled';
       if (statusFilter === 'Out for Delivery') return normalizeStatus(item.deliveryStatus) === 'out for delivery';
+
+      // Combo-based
+      const comboStatus = getComboStatus(item); // function: Single / Double / Triple
+      if (statusFilter === 'Single') return comboStatus === 'Single';
+      if (statusFilter === 'Double') return comboStatus === 'Double';
+      if (statusFilter === 'Triple') return comboStatus === 'Triple';
+
       return matchesSearch;
     });
   }, [dataWithNormalStatus, debouncedSearch, statusFilter]);
